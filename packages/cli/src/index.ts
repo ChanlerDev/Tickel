@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { readSession, findLatestSession, readTodaySessions } from "./session.js";
+import { readSession, findLatestSession, readTodaySessions, formatLocalDate } from "./session.js";
 import { computeCost } from "./prices.js";
 import { buildUrl } from "./url.js";
 
@@ -71,7 +71,7 @@ program
     let totalCacheRead = 0;
     let totalCost = 0;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = formatLocalDate();
     console.log(`\n🧾 Tickel — Today (${today})`);
     console.log(`   ${sessions.length} session(s)\n`);
 
@@ -121,12 +121,16 @@ program
     const commandsDir = path.join(os.homedir(), ".claude", "commands");
     fs.mkdirSync(commandsDir, { recursive: true });
 
-    const content = `Run tickel to show token usage and cost for the current session:
-
-\`\`\`bash
-tickel --print
-\`\`\`
-`;
+    const content = [
+      "---",
+      "description: Show Tickel token usage and cost for the current session",
+      "disable-model-invocation: true",
+      "allowed-tools: Bash(tickel *)",
+      "---",
+      "",
+      "!`tickel --print`",
+      "",
+    ].join("\n");
 
     const dest = path.join(commandsDir, "tickel.md");
     fs.writeFileSync(dest, content, "utf-8");

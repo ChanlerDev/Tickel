@@ -23,7 +23,21 @@ interface MessageEntry {
       cache_read_input_tokens?: number;
     };
   };
-  timestamp?: number;
+  timestamp?: number | string;
+}
+
+export function formatLocalDate(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseTimestamp(timestamp: MessageEntry["timestamp"]): Date | null {
+  if (timestamp === undefined) return null;
+
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function findSessionFile(sessionId: string): { file: string; projectSlug: string } | null {
@@ -78,7 +92,7 @@ export function readSession(sessionId: string): SessionUsage | null {
   return parseSessionFile(found.file, found.projectSlug);
 }
 
-function parseSessionFile(file: string, projectSlug: string): SessionUsage | null {
+function parseSessionFile(file: string, projectSlug: string, dateFilter?: string): SessionUsage | null {
   const lines = fs.readFileSync(file, "utf-8").split("\n").filter(Boolean);
 
   let model = "unknown";
@@ -86,16 +100,22 @@ function parseSessionFile(file: string, projectSlug: string): SessionUsage | nul
   let outputTokens = 0;
   let cacheWriteTokens = 0;
   let cacheReadTokens = 0;
-  let firstTimestamp: number | undefined;
+  let firstTimestamp: Date | null = null;
+  let hasUsage = false;
 
   for (const line of lines) {
     try {
       const entry: MessageEntry = JSON.parse(line);
-      if (entry.timestamp && !firstTimestamp) {
-        firstTimestamp = entry.timestamp;
+      const timestamp = parseTimestamp(entry.timestamp);
+      if (timestamp && !firstTimestamp) {
+        firstTimestamp = timestamp;
       }
       const msg = entry.message;
       if (msg?.usage) {
+        if (dateFilter && (!timestamp || formatLocalDate(timestamp) !== dateFilter)) {
+          continue;
+        }
+        hasUsage = true;
         if (msg.model && msg.model !== "unknown") model = msg.model;
         inputTokens += msg.usage.input_tokens ?? 0;
         outputTokens += msg.usage.output_tokens ?? 0;
@@ -107,8 +127,9 @@ function parseSessionFile(file: string, projectSlug: string): SessionUsage | nul
     }
   }
 
-  const ts = firstTimestamp ? new Date(firstTimestamp) : new Date();
-  const date = ts.toISOString().split("T")[0];
+  if (dateFilter && !hasUsage) return null;
+
+  const date = dateFilter ?? formatLocalDate(firstTimestamp ?? new Date());
 
   return {
     model,
@@ -121,12 +142,12 @@ function parseSessionFile(file: string, projectSlug: string): SessionUsage | nul
   };
 }
 
-export function readTodaySessions(): SessionUsage[] {
+export function readTodaySessions(now = new Date()): SessionUsage[] {
   const projectsDir = path.join(os.homedir(), ".claude", "projects");
   if (!fs.existsSync(projectsDir)) return [];
 
-  const today = new Date().toISOString().split("T")[0];
-  const todayStart = new Date(today + "T00:00:00").getTime();
+  const today = formatLocalDate(now);
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const results: SessionUsage[] = [];
 
   const slugs = fs.readdirSync(projectsDir);
@@ -141,8 +162,8 @@ export function readTodaySessions(): SessionUsage[] {
       const mtime = fs.statSync(filePath).mtimeMs;
       if (mtime < todayStart) continue;
 
-      const usage = parseSessionFile(filePath, slug);
-      if (usage && usage.date === today) {
+      const usage = parseSessionFile(filePath, slug, today);
+      if (usage) {
         results.push(usage);
       }
     }
