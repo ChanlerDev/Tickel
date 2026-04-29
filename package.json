@@ -2,8 +2,11 @@
   "name": "tickel",
   "private": true,
   "scripts": {
-    "dev:web": "pnpm --filter web dev",
-    "build:web": "pnpm --filter web build",
-    "build:cli": "pnpm --filter cli build"
+    "dev:web": "pnpm --filter tickel-web dev",
+    "build:web": "pnpm --filter tickel-web build",
+    "build:cli": "pnpm --filter tickel build",
+    "test:cli": "pnpm --filter tickel test",
+    "agent:check": "node scripts/agent-check.mjs",
+    "agent:release": "node scripts/agent-release.mjs"
   }
 }
