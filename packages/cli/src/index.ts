@@ -62,4 +62,31 @@ program
     console.log("tickel today — coming soon");
   });
 
+program
+  .command("install")
+  .description("Install /tickel slash command for Claude Code")
+  .action(() => {
+    const fs = require("fs");
+    const path = require("path");
+    const os = require("os");
+
+    const commandsDir = path.join(os.homedir(), ".claude", "commands");
+    fs.mkdirSync(commandsDir, { recursive: true });
+
+    const content = `Generate a Tickel token receipt for the current Claude Code session.
+
+Run the following command:
+
+\`\`\`bash
+tickel
+\`\`\`
+
+This will read the current session's token usage, compute the cost, and open the receipt in your browser.
+`;
+
+    const dest = path.join(commandsDir, "tickel.md");
+    fs.writeFileSync(dest, content, "utf-8");
+    console.log(`✅ Installed /tickel slash command → ${dest}`);
+  });
+
 program.parse();
