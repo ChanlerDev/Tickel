@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+
+- **feat**: `tickel today` — 聚合当日所有项目的 session，按项目列出费用，显示汇总
+
 ## 0.1.2
 
 - **fix**: 修正费用计算 — `input_tokens` 已包含 cache 部分，之前重复计费导致金额虚高

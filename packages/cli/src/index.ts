@@ -9,7 +9,7 @@ const program = new Command();
 program
   .name("tickel")
   .description("Claude Code token receipt generator")
-  .version("0.1.1");
+  .version("0.2.0");
 
 program
   .command("session [sessionId]", { isDefault: true })
