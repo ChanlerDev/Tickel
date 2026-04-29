@@ -1,0 +1,9 @@
+{
+  "name": "tickel",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "build:cli": "pnpm --filter cli build"
+  }
+}
