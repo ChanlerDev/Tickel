@@ -75,8 +75,10 @@ export function findLatestSession(): string | null {
 export function readSession(sessionId: string): SessionUsage | null {
   const found = findSessionFile(sessionId);
   if (!found) return null;
+  return parseSessionFile(found.file, found.projectSlug);
+}
 
-  const { file, projectSlug } = found;
+function parseSessionFile(file: string, projectSlug: string): SessionUsage | null {
   const lines = fs.readFileSync(file, "utf-8").split("\n").filter(Boolean);
 
   let model = "unknown";
@@ -117,4 +119,34 @@ export function readSession(sessionId: string): SessionUsage | null {
     projectName: slugToProjectName(projectSlug),
     date,
   };
+}
+
+export function readTodaySessions(): SessionUsage[] {
+  const projectsDir = path.join(os.homedir(), ".claude", "projects");
+  if (!fs.existsSync(projectsDir)) return [];
+
+  const today = new Date().toISOString().split("T")[0];
+  const todayStart = new Date(today + "T00:00:00").getTime();
+  const results: SessionUsage[] = [];
+
+  const slugs = fs.readdirSync(projectsDir);
+  for (const slug of slugs) {
+    const slugDir = path.join(projectsDir, slug);
+    if (!fs.statSync(slugDir).isDirectory()) continue;
+
+    const files = fs.readdirSync(slugDir).filter(f => f.endsWith(".jsonl"));
+    for (const file of files) {
+      const filePath = path.join(slugDir, file);
+      // Quick filter: skip files not modified today
+      const mtime = fs.statSync(filePath).mtimeMs;
+      if (mtime < todayStart) continue;
+
+      const usage = parseSessionFile(filePath, slug);
+      if (usage && usage.date === today) {
+        results.push(usage);
+      }
+    }
+  }
+
+  return results;
 }
