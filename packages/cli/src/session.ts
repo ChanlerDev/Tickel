@@ -47,6 +47,31 @@ function slugToProjectName(slug: string): string {
   return parts[parts.length - 1] || slug;
 }
 
+function cwdToSlug(): string {
+  // Convert cwd to Claude's slug format: /Users/chanler/personal/Tickel → -Users-chanler-personal-Tickel
+  return process.cwd().replace(/\//g, "-");
+}
+
+export function findLatestSession(): string | null {
+  const projectsDir = path.join(os.homedir(), ".claude", "projects");
+  if (!fs.existsSync(projectsDir)) return null;
+
+  const slug = cwdToSlug();
+  const slugDir = path.join(projectsDir, slug);
+  if (!fs.existsSync(slugDir)) return null;
+
+  const files = fs.readdirSync(slugDir)
+    .filter(f => f.endsWith(".jsonl"))
+    .map(f => ({
+      name: f,
+      mtime: fs.statSync(path.join(slugDir, f)).mtimeMs,
+    }))
+    .sort((a, b) => b.mtime - a.mtime);
+
+  if (files.length === 0) return null;
+  return files[0].name.replace(".jsonl", "");
+}
+
 export function readSession(sessionId: string): SessionUsage | null {
   const found = findSessionFile(sessionId);
   if (!found) return null;

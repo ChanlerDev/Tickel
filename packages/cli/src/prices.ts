@@ -54,8 +54,11 @@ export function computeCost(
   const pricing = PRICES[model];
   if (!pricing) return 0;
   const M = 1_000_000;
+  // input_tokens already includes cache_write + cache_read,
+  // so base input = total input - cache portions
+  const baseInputTokens = Math.max(0, inputTokens - cacheWriteTokens - cacheReadTokens);
   return (
-    (inputTokens / M) * pricing.input +
+    (baseInputTokens / M) * pricing.input +
     (outputTokens / M) * pricing.output +
     (cacheWriteTokens / M) * pricing.cache_write +
     (cacheReadTokens / M) * pricing.cache_read

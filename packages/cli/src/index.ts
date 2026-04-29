@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { readSession } from "./session.js";
+import { readSession, findLatestSession } from "./session.js";
 import { computeCost } from "./prices.js";
 import { buildUrl } from "./url.js";
 
@@ -9,17 +9,17 @@ const program = new Command();
 program
   .name("tickel")
   .description("Claude Code token receipt generator")
-  .version("0.1.0");
+  .version("0.1.1");
 
 program
   .command("session [sessionId]", { isDefault: true })
-  .description("Generate receipt for a session (default: current session)")
+  .description("Generate receipt for a session (default: latest session in cwd project)")
   .option("-t, --template <id>", "Template ID", "default")
   .option("--print", "Print summary to terminal only, do not open browser")
   .action(async (sessionId: string | undefined, opts: { template: string; print: boolean }) => {
-    const sid = sessionId ?? process.env.CLAUDE_SESSION_ID;
+    const sid = sessionId ?? findLatestSession();
     if (!sid) {
-      console.error("Error: no session ID. Pass one as argument or set $CLAUDE_SESSION_ID");
+      console.error("Error: no session found. Pass a session ID or run from a Claude Code project directory.");
       process.exit(1);
     }
 
@@ -73,15 +73,11 @@ program
     const commandsDir = path.join(os.homedir(), ".claude", "commands");
     fs.mkdirSync(commandsDir, { recursive: true });
 
-    const content = `Generate a Tickel token receipt for the current Claude Code session.
-
-Run the following command:
+    const content = `Run tickel to show token usage and cost for the current session:
 
 \`\`\`bash
-tickel
+tickel --print
 \`\`\`
-
-This will read the current session's token usage, compute the cost, and open the receipt in your browser.
 `;
 
     const dest = path.join(commandsDir, "tickel.md");
