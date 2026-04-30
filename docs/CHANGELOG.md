@@ -3,7 +3,7 @@
 ## Unreleased
 
 - **fix**: `tickel today` 按运行机器本地日期统计 usage 行，修正 UTC 日期和跨午夜 session 归类问题
-- **fix**: `tickel install` 生成直接执行 `tickel --print` 的 Claude Code command 文件
+- **fix**: `tickel install` 使用 `${CLAUDE_SESSION_ID}` 内置变量精确定位当前会话，避免多会话时 mtime 匹配错误
 
 ## 0.2.0
 

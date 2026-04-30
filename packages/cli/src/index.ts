@@ -128,7 +128,7 @@ program
       "allowed-tools: Bash(tickel *)",
       "---",
       "",
-      "!`tickel --print`",
+      "!`tickel ${CLAUDE_SESSION_ID}`",
       "",
     ].join("\n");
 
