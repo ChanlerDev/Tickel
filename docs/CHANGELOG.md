@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **feat**: 多模型分账 — 单 session 内混合模型（如用户切换 opus→sonnet）时，CLI 和 Web 收据按模型分别展示 token 明细和费用
 - **fix**: `tickel today` 按运行机器本地日期统计 usage 行，修正 UTC 日期和跨午夜 session 归类问题
 - **fix**: `tickel install` 使用 `${CLAUDE_SESSION_ID}` 内置变量精确定位当前会话，避免多会话时 mtime 匹配错误
 
