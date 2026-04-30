@@ -2,6 +2,7 @@
 
 ## Planned
 
+- [ ] 多模型分账 — 单 session 内按模型分别统计 token 和费用（一个会话可能混合 opus/haiku/sonnet，或委派 gpt-5.2-mini 等）
 - [ ] CodeBody 支持 — 兼容 CodeBody 的会话数据读取和用量统计
 - [ ] 子目录兼容 — 在项目子目录运行时向上找 git root 匹配 slug
 - [ ] 收据页面美化 — 调整 Web 收据模板样式
