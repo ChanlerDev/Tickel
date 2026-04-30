@@ -1,3 +1,12 @@
+export interface ModelBreakdown {
+  model: string;
+  in: number;
+  out: number;
+  cw: number;
+  cr: number;
+  cost: number;
+}
+
 export interface ReceiptData {
   model: string;
   inputTokens: number;
@@ -8,10 +17,11 @@ export interface ReceiptData {
   title: string;
   date: string;
   templateId: string;
+  models?: ModelBreakdown[];
 }
 
 export function parseReceiptParams(params: Record<string, string>): ReceiptData {
-  return {
+  const data: ReceiptData = {
     model: params.model ?? "unknown",
     inputTokens: parseInt(params.in ?? "0", 10),
     outputTokens: parseInt(params.out ?? "0", 10),
@@ -22,6 +32,18 @@ export function parseReceiptParams(params: Record<string, string>): ReceiptData 
     date: params.date ?? new Date().toISOString().split("T")[0],
     templateId: params.templateId ?? "default",
   };
+
+  // Decode per-model breakdown if present
+  if (params.models) {
+    try {
+      const json = atob(params.models.replace(/-/g, "+").replace(/_/g, "/"));
+      data.models = JSON.parse(json) as ModelBreakdown[];
+    } catch {
+      // ignore malformed models param
+    }
+  }
+
+  return data;
 }
 
 export function formatTokens(n: number): string {

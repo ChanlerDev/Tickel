@@ -4,13 +4,12 @@ interface Props {
   data: ReceiptData;
 }
 
+function shortModel(model: string): string {
+  return model.replace(/^claude-/, "");
+}
+
 export function ReceiptDefault({ data }: Props) {
-  const rows = [
-    { label: "INPUT",       value: formatTokens(data.inputTokens) },
-    { label: "OUTPUT",      value: formatTokens(data.outputTokens) },
-    { label: "CACHE WRITE", value: formatTokens(data.cacheWriteTokens) },
-    { label: "CACHE READ",  value: formatTokens(data.cacheReadTokens) },
-  ];
+  const hasBreakdown = data.models && data.models.length > 1;
 
   return (
     <div
@@ -36,21 +35,64 @@ export function ReceiptDefault({ data }: Props) {
           <span className="text-gray-500">DATE</span>
           <span>{data.date}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-500">MODEL</span>
-          <span className="text-[10px]">{data.model}</span>
-        </div>
+        {!hasBreakdown && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">MODEL</span>
+            <span className="text-[10px]">{data.model}</span>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-dashed border-gray-300 my-3" />
 
-      {/* Token rows */}
-      {rows.map((row) => (
-        <div key={row.label} className="flex justify-between py-0.5">
-          <span className="text-gray-500">{row.label}</span>
-          <span>{row.value}</span>
-        </div>
-      ))}
+      {hasBreakdown ? (
+        <>
+          {/* Multi-model: each model as a "dish" with full detail */}
+          {data.models!.map((m, i) => (
+            <div key={m.model}>
+              <div className="font-bold text-[11px] mb-1">{shortModel(m.model)}</div>
+              <div className="flex justify-between py-0.5 pl-2">
+                <span className="text-gray-500">INPUT</span>
+                <span>{formatTokens(m.in)}</span>
+              </div>
+              <div className="flex justify-between py-0.5 pl-2">
+                <span className="text-gray-500">OUTPUT</span>
+                <span>{formatTokens(m.out)}</span>
+              </div>
+              <div className="flex justify-between py-0.5 pl-2">
+                <span className="text-gray-500">CACHE W</span>
+                <span>{formatTokens(m.cw)}</span>
+              </div>
+              <div className="flex justify-between py-0.5 pl-2">
+                <span className="text-gray-500">CACHE R</span>
+                <span>{formatTokens(m.cr)}</span>
+              </div>
+              <div className="flex justify-between py-0.5 pl-2 font-bold">
+                <span className="text-gray-500">SUBTOTAL</span>
+                <span>${m.cost.toFixed(4)}</span>
+              </div>
+              {i < data.models!.length - 1 && (
+                <div className="border-t border-dashed border-gray-200 my-2" />
+              )}
+            </div>
+          ))}
+        </>
+      ) : (
+        <>
+          {/* Single model: flat token rows */}
+          {[
+            { label: "INPUT",       value: formatTokens(data.inputTokens) },
+            { label: "OUTPUT",      value: formatTokens(data.outputTokens) },
+            { label: "CACHE WRITE", value: formatTokens(data.cacheWriteTokens) },
+            { label: "CACHE READ",  value: formatTokens(data.cacheReadTokens) },
+          ].map((row) => (
+            <div key={row.label} className="flex justify-between py-0.5">
+              <span className="text-gray-500">{row.label}</span>
+              <span>{row.value}</span>
+            </div>
+          ))}
+        </>
+      )}
 
       <div className="border-t border-gray-400 my-3" />
 
