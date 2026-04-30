@@ -1,4 +1,5 @@
 import { SessionUsage } from "./session.js";
+import { computeCostByModel } from "./prices.js";
 
 const BASE_URL = "https://tickel.vercel.app";
 
@@ -21,5 +22,24 @@ export function buildUrl(params: TickelParams): string {
     date: usage.date,
     templateId,
   });
+
+  // Encode per-model breakdown for multi-model sessions
+  if (usage.models.length > 1) {
+    const modelCosts = computeCostByModel(usage.models);
+    const breakdown = usage.models.map(m => {
+      const mc = modelCosts.find(c => c.model === m.model)!;
+      return {
+        model: m.model,
+        in: m.inputTokens,
+        out: m.outputTokens,
+        cw: m.cacheWriteTokens,
+        cr: m.cacheReadTokens,
+        cost: mc.cost,
+      };
+    });
+    const encoded = Buffer.from(JSON.stringify(breakdown)).toString("base64url");
+    p.set("models", encoded);
+  }
+
   return `${BASE_URL}/?${p.toString()}`;
 }

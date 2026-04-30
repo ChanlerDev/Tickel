@@ -2,14 +2,23 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 
-export interface SessionUsage {
+export interface ModelUsage {
   model: string;
   inputTokens: number;
   outputTokens: number;
   cacheWriteTokens: number;
   cacheReadTokens: number;
+}
+
+export interface SessionUsage {
+  model: string;           // primary model or "mixed"
+  inputTokens: number;     // totals (backward compat)
+  outputTokens: number;
+  cacheWriteTokens: number;
+  cacheReadTokens: number;
   projectName: string;
   date: string; // YYYY-MM-DD
+  models: ModelUsage[];    // per-model breakdown
 }
 
 interface MessageEntry {
@@ -95,11 +104,7 @@ export function readSession(sessionId: string): SessionUsage | null {
 function parseSessionFile(file: string, projectSlug: string, dateFilter?: string): SessionUsage | null {
   const lines = fs.readFileSync(file, "utf-8").split("\n").filter(Boolean);
 
-  let model = "unknown";
-  let inputTokens = 0;
-  let outputTokens = 0;
-  let cacheWriteTokens = 0;
-  let cacheReadTokens = 0;
+  const modelMap = new Map<string, ModelUsage>();
   let firstTimestamp: Date | null = null;
   let hasUsage = false;
 
@@ -115,12 +120,32 @@ function parseSessionFile(file: string, projectSlug: string, dateFilter?: string
         if (dateFilter && (!timestamp || formatLocalDate(timestamp) !== dateFilter)) {
           continue;
         }
+        const msgModel = msg.model && msg.model !== "unknown" && msg.model !== "<synthetic>"
+          ? msg.model
+          : null;
+        if (!msgModel) continue;
+
         hasUsage = true;
-        if (msg.model && msg.model !== "unknown") model = msg.model;
-        inputTokens += msg.usage.input_tokens ?? 0;
-        outputTokens += msg.usage.output_tokens ?? 0;
-        cacheWriteTokens += msg.usage.cache_creation_input_tokens ?? 0;
-        cacheReadTokens += msg.usage.cache_read_input_tokens ?? 0;
+        const existing = modelMap.get(msgModel);
+        const inTok = msg.usage.input_tokens ?? 0;
+        const outTok = msg.usage.output_tokens ?? 0;
+        const cwTok = msg.usage.cache_creation_input_tokens ?? 0;
+        const crTok = msg.usage.cache_read_input_tokens ?? 0;
+
+        if (existing) {
+          existing.inputTokens += inTok;
+          existing.outputTokens += outTok;
+          existing.cacheWriteTokens += cwTok;
+          existing.cacheReadTokens += crTok;
+        } else {
+          modelMap.set(msgModel, {
+            model: msgModel,
+            inputTokens: inTok,
+            outputTokens: outTok,
+            cacheWriteTokens: cwTok,
+            cacheReadTokens: crTok,
+          });
+        }
       }
     } catch {
       // skip malformed lines
@@ -129,7 +154,24 @@ function parseSessionFile(file: string, projectSlug: string, dateFilter?: string
 
   if (dateFilter && !hasUsage) return null;
 
+  const models = Array.from(modelMap.values());
   const date = dateFilter ?? formatLocalDate(firstTimestamp ?? new Date());
+
+  // Compute totals
+  let inputTokens = 0;
+  let outputTokens = 0;
+  let cacheWriteTokens = 0;
+  let cacheReadTokens = 0;
+  for (const m of models) {
+    inputTokens += m.inputTokens;
+    outputTokens += m.outputTokens;
+    cacheWriteTokens += m.cacheWriteTokens;
+    cacheReadTokens += m.cacheReadTokens;
+  }
+
+  const model = models.length === 1 ? models[0].model
+    : models.length > 1 ? "mixed"
+    : "unknown";
 
   return {
     model,
@@ -139,6 +181,7 @@ function parseSessionFile(file: string, projectSlug: string, dateFilter?: string
     cacheReadTokens,
     projectName: slugToProjectName(projectSlug),
     date,
+    models,
   };
 }
 

@@ -1,3 +1,5 @@
+import type { ModelUsage } from "./session.js";
+
 export interface ModelPricing {
   input: number;       // USD per 1M tokens
   output: number;
@@ -63,4 +65,16 @@ export function computeCost(
     (cacheWriteTokens / M) * pricing.cache_write +
     (cacheReadTokens / M) * pricing.cache_read
   );
+}
+
+export interface ModelCost {
+  model: string;
+  cost: number;
+}
+
+export function computeCostByModel(models: ModelUsage[]): ModelCost[] {
+  return models.map(m => ({
+    model: m.model,
+    cost: computeCost(m.model, m.inputTokens, m.outputTokens, m.cacheWriteTokens, m.cacheReadTokens),
+  }));
 }

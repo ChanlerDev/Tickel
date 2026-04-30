@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { readSession, findLatestSession, readTodaySessions, formatLocalDate } from "./session.js";
-import { computeCost } from "./prices.js";
+import { computeCost, computeCostByModel } from "./prices.js";
 import { buildUrl } from "./url.js";
 
 const program = new Command();
@@ -9,7 +9,7 @@ const program = new Command();
 program
   .name("tickel")
   .description("Claude Code token receipt generator")
-  .version("0.2.0");
+  .version("0.2.2");
 
 program
   .command("session [sessionId]", { isDefault: true })
@@ -29,26 +29,36 @@ program
       process.exit(1);
     }
 
-    const cost = computeCost(
-      usage.model,
-      usage.inputTokens,
-      usage.outputTokens,
-      usage.cacheWriteTokens,
-      usage.cacheReadTokens
-    );
+    const modelCosts = computeCostByModel(usage.models);
+    const totalCost = modelCosts.reduce((sum, mc) => sum + mc.cost, 0);
 
     console.log(`\n🧾 Tickel — ${usage.projectName} (${usage.date})`);
-    console.log(`   Model:        ${usage.model}`);
-    console.log(`   Input:        ${usage.inputTokens.toLocaleString()} tokens`);
-    console.log(`   Output:       ${usage.outputTokens.toLocaleString()} tokens`);
-    console.log(`   Cache write:  ${usage.cacheWriteTokens.toLocaleString()} tokens`);
-    console.log(`   Cache read:   ${usage.cacheReadTokens.toLocaleString()} tokens`);
-    console.log(`   Cost:         $${cost.toFixed(4)}`);
+
+    if (usage.models.length > 1) {
+      // Multi-model breakdown
+      console.log(`   Model breakdown:`);
+      for (const mc of modelCosts) {
+        const mu = usage.models.find(m => m.model === mc.model)!;
+        const inStr = mu.inputTokens.toLocaleString().padStart(10);
+        const outStr = mu.outputTokens.toLocaleString().padStart(8);
+        console.log(`     ${mc.model.padEnd(24)} ${inStr} in / ${outStr} out   $${mc.cost.toFixed(4)}`);
+      }
+      console.log(`   ${"─".repeat(56)}`);
+      console.log(`   Total:  ${usage.inputTokens.toLocaleString()} in / ${usage.outputTokens.toLocaleString()} out   $${totalCost.toFixed(4)}`);
+    } else {
+      // Single model — original format
+      console.log(`   Model:        ${usage.model}`);
+      console.log(`   Input:        ${usage.inputTokens.toLocaleString()} tokens`);
+      console.log(`   Output:       ${usage.outputTokens.toLocaleString()} tokens`);
+      console.log(`   Cache write:  ${usage.cacheWriteTokens.toLocaleString()} tokens`);
+      console.log(`   Cache read:   ${usage.cacheReadTokens.toLocaleString()} tokens`);
+      console.log(`   Cost:         $${totalCost.toFixed(4)}`);
+    }
 
     if (!opts.print) {
       // open@10 is ESM-only; use dynamic import for CJS compatibility
       const { default: open } = await import("open");
-      const url = buildUrl({ usage, cost, templateId: opts.template });
+      const url = buildUrl({ usage, cost: totalCost, templateId: opts.template });
       console.log(`\n   Opening receipt: ${url}\n`);
       await open(url);
     }
@@ -76,16 +86,21 @@ program
     console.log(`   ${sessions.length} session(s)\n`);
 
     for (const s of sessions) {
-      const cost = computeCost(s.model, s.inputTokens, s.outputTokens, s.cacheWriteTokens, s.cacheReadTokens);
+      const sessionCosts = computeCostByModel(s.models);
+      const cost = sessionCosts.reduce((sum, mc) => sum + mc.cost, 0);
       totalInput += s.inputTokens;
       totalOutput += s.outputTokens;
       totalCacheWrite += s.cacheWriteTokens;
       totalCacheRead += s.cacheReadTokens;
       totalCost += cost;
-      console.log(`   ${s.projectName.padEnd(20)} ${s.model.padEnd(22)} $${cost.toFixed(4)}`);
+
+      const modelLabel = s.models.length > 1
+        ? `mixed (${s.models.length} models)`
+        : s.model;
+      console.log(`   ${s.projectName.padEnd(20)} ${modelLabel.padEnd(26)} $${cost.toFixed(4)}`);
     }
 
-    console.log(`\n   ${"─".repeat(50)}`);
+    console.log(`\n   ${"─".repeat(54)}`);
     console.log(`   Input:        ${totalInput.toLocaleString()} tokens`);
     console.log(`   Output:       ${totalOutput.toLocaleString()} tokens`);
     console.log(`   Cache write:  ${totalCacheWrite.toLocaleString()} tokens`);
@@ -102,6 +117,7 @@ program
         cacheReadTokens: totalCacheRead,
         projectName: "today",
         date: today,
+        models: [], // today aggregation doesn't pass per-model to web
       };
       const { default: open } = await import("open");
       const url = buildUrl({ usage: aggregated, cost: totalCost });

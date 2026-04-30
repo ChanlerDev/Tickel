@@ -72,5 +72,14 @@ test("readTodaySessions aggregates usage entries from the local day", (t) => {
     cacheReadTokens: 40,
     projectName: "Project",
     date: "2026-04-30",
+    models: [
+      {
+        model: "claude-sonnet-4-5",
+        inputTokens: 200,
+        outputTokens: 20,
+        cacheWriteTokens: 30,
+        cacheReadTokens: 40,
+      },
+    ],
   });
 });
