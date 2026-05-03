@@ -70,18 +70,32 @@ function slugToProjectName(slug: string): string {
   return parts[parts.length - 1] || slug;
 }
 
-function cwdToSlug(): string {
-  // Convert cwd to Claude's slug format: /Users/chanler/personal/Tickel → -Users-chanler-personal-Tickel
-  return process.cwd().replace(/\//g, "-");
+function dirToSlug(dir: string): string {
+  return dir.replace(/\//g, "-");
+}
+
+/**
+ * Walk up from cwd, return the first slug directory that exists in ~/.claude/projects/.
+ * Claude records sessions under the directory it was launched from, which may be any
+ * ancestor of the user's current working directory.
+ */
+function findProjectSlugDir(projectsDir: string): string | null {
+  let current = process.cwd();
+  while (true) {
+    const slugDir = path.join(projectsDir, dirToSlug(current));
+    if (fs.existsSync(slugDir)) return slugDir;
+    const parent = path.dirname(current);
+    if (parent === current) return null; // reached filesystem root
+    current = parent;
+  }
 }
 
 export function findLatestSession(): string | null {
   const projectsDir = path.join(os.homedir(), ".claude", "projects");
   if (!fs.existsSync(projectsDir)) return null;
 
-  const slug = cwdToSlug();
-  const slugDir = path.join(projectsDir, slug);
-  if (!fs.existsSync(slugDir)) return null;
+  const slugDir = findProjectSlugDir(projectsDir);
+  if (!slugDir) return null;
 
   const files = fs.readdirSync(slugDir)
     .filter(f => f.endsWith(".jsonl"))
