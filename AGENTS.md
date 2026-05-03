@@ -11,7 +11,7 @@
 1. 判断需求是否有用户价值；低价值或不可行时，先说明问题并给出可行替代方案。
 2. 用户可见的新功能先加入 `docs/ROADMAP.md` 的 `## Planned`；临时 bugfix 不必进 roadmap。
 3. 实现时保持改动聚焦，遵循现有结构和风格；根据风险补测试。
-4. 用户可见行为变化更新 `docs/CHANGELOG.md`；产品语义或契约变化更新 `docs/SPEC.md`；安装和使用变化更新 README。
+4. 用户可见行为变化写入 `docs/CHANGELOG.md` 的 `## Unreleased` 区块；不要手动归入版本号，`pnpm agent:release` 会自动将 Unreleased 内容重命名为新版本号。产品语义或契约变化更新 `docs/SPEC.md`；安装和使用变化更新 README。
 5. 如果实现了 roadmap 项，完成后从 `## Planned` 移到 `## Done`，保留历史。
 6. 运行 `pnpm agent:check` 后再交付。
 

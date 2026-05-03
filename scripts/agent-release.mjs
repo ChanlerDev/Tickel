@@ -83,8 +83,17 @@ if (!hasCliChanges) {
   fail("no packages/cli changes since latest release tag");
 }
 
-if (!changedFiles.includes("docs/CHANGELOG.md")) {
-  fail("docs/CHANGELOG.md must be updated before release");
+const changelogPath = path.join(process.cwd(), "docs", "CHANGELOG.md");
+const changelogContent = fs.readFileSync(changelogPath, "utf8");
+
+// Extract content between ## Unreleased and next ## heading
+const unreleasedMatch = changelogContent.match(
+  /^## Unreleased\n([\s\S]*?)(?=^## |\Z)/m
+);
+const unreleasedBody = unreleasedMatch ? unreleasedMatch[1].trim() : "";
+
+if (!unreleasedBody) {
+  fail("## Unreleased section in docs/CHANGELOG.md is empty; add entries before release");
 }
 
 run("pnpm", ["agent:check"]);
@@ -96,10 +105,17 @@ if (existingTags) {
   fail(`tag already exists: ${nextTag}`);
 }
 
+// Rewrite CHANGELOG: replace Unreleased block with versioned block, prepend empty Unreleased
+const newChangelog = changelogContent.replace(
+  /^## Unreleased\n[\s\S]*?(?=^## |\Z)/m,
+  `## Unreleased\n\n## ${nextVersion}\n\n${unreleasedBody}\n\n`
+);
+fs.writeFileSync(changelogPath, newChangelog);
+
 packageJson.version = nextVersion;
 fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
-run("git", ["add", "packages/cli/package.json"]);
+run("git", ["add", "packages/cli/package.json", changelogPath]);
 run("git", ["commit", "-m", `chore(release): ${nextTag}`]);
 run("git", ["tag", nextTag]);
 run("git", ["push", "origin", `HEAD:${branch}`]);

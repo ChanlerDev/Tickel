@@ -2,9 +2,19 @@
 
 ## Unreleased
 
+- **fix**: 子目录兼容 — 在项目子目录运行时，向上逐级查找 `~/.claude/projects/` 中匹配的 slug 目录，不再要求必须在会话启动目录运行
+
+## 0.2.3
+
 - **feat**: 多模型分账 — 单 session 内混合模型（如用户切换 opus→sonnet）时，CLI 和 Web 收据按模型分别展示 token 明细和费用
-- **fix**: `tickel today` 按运行机器本地日期统计 usage 行，修正 UTC 日期和跨午夜 session 归类问题
+
+## 0.2.2
+
 - **fix**: `tickel install` 使用 `${CLAUDE_SESSION_ID}` 内置变量精确定位当前会话，避免多会话时 mtime 匹配错误
+
+## 0.2.1
+
+- **fix**: `tickel today` 按运行机器本地日期统计 usage 行，修正 UTC 日期和跨午夜 session 归类问题
 
 ## 0.2.0
 
