@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.7
+
 - **feat**: 收据 URL 支持 v2 结构化 payload，表达 coding agent、模型明细、总量、费用和模板偏好，并保留旧 query 参数兼容
 - **feat**: Web 收据页面支持手动编辑项目、日期、模板、agent、模型 token 和费用，导出 PNG 使用编辑后的收据
 - **feat**: 收据模板扩展为三套样式，并通过模板 registry 统一选择和回退

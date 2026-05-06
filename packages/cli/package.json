@@ -1,6 +1,6 @@
 {
   "name": "tickel",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Claude Code token receipt generator",
   "bin": {
     "tickel": "dist/index.js"
