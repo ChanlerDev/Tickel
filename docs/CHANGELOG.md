@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.5
+
 - **feat**: Claude Code sub-agent 用量 — session 收据会读取 `<session-id>/subagents/*.jsonl`，将 sub-agent token 按模型合并进小票明细和总费用
 
 ## 0.2.4
