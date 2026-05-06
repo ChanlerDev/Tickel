@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **feat**: 收据 URL 支持 v2 结构化 payload，表达 coding agent、模型明细、总量、费用和模板偏好，并保留旧 query 参数兼容
+
 ## 0.2.6
 
 - **chore**: 同步官方模型价格表

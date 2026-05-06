@@ -106,6 +106,50 @@ cost = (base_input_tokens / 1M) × input_price
 
 Base: `https://tickel.vercel.app/`
 
+Web 优先解析 v2 结构化 payload；如果缺失或解析失败，回退到旧 query 参数，确保历史链接仍可打开。
+
+#### v2 payload
+
+Query 参数:
+| 参数 | 值 |
+|------|------|
+| `payload` | base64url(JSON) |
+
+Payload JSON:
+```json
+{
+  "version": 2,
+  "source": { "agent": "claude-code" },
+  "receipt": {
+    "title": "Tickel",
+    "date": "2026-05-06",
+    "templateId": "default",
+    "totalCost": 0.1234,
+    "totals": {
+      "inputTokens": 300,
+      "outputTokens": 30,
+      "cacheWriteTokens": 40,
+      "cacheReadTokens": 50
+    },
+    "items": [
+      {
+        "agent": "claude-code",
+        "model": "claude-sonnet-4-5",
+        "inputTokens": 300,
+        "outputTokens": 30,
+        "cacheWriteTokens": 40,
+        "cacheReadTokens": 50,
+        "cost": 0.1234
+      }
+    ]
+  }
+}
+```
+
+`items[].agent` 为后续 CodeBuddy 等不同 coding agent 预留；同一 agent 下可有多个 model，不同 agent 也可以出现相同 model。
+
+#### legacy params
+
 Query params:
 | 参数 | 值 |
 |------|------|
