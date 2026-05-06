@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { parseReceiptParams } from "@/lib/receipt";
 import { DownloadButton } from "./DownloadButton";
 import { ReceiptEditor } from "./ReceiptEditor";
+import { ReceiptFrame } from "./ReceiptFrame";
 import { getReceiptTemplate } from "./templates";
 
 export function ReceiptPage() {
@@ -15,14 +16,14 @@ export function ReceiptPage() {
   const initialData = useMemo(() => parseReceiptParams(raw), [params]);
   const [data, setData] = useState(initialData);
 
-  const { Component: Receipt } = getReceiptTemplate(data.templateId);
+  const template = getReceiptTemplate(data.templateId);
 
   return (
-    <div className="min-h-screen bg-[#f4f1ea] text-zinc-950">
-      <div className="mx-auto grid min-h-screen w-full min-w-0 max-w-7xl gap-6 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-6 lg:py-6">
-        <main className="flex min-w-0 min-h-[60vh] flex-col items-center justify-center gap-4 overflow-x-hidden rounded-lg border border-[#d9cfbd] bg-[#fbfaf6] p-4 shadow-sm lg:p-8">
-          <div className="flex w-full min-w-0 max-w-[380px] justify-center">
-            <Receipt data={data} />
+    <div className="min-h-screen bg-[#eef0f3] text-zinc-950">
+      <div className="mx-auto grid min-h-screen w-full min-w-0 max-w-6xl gap-4 px-3 py-3 lg:grid-cols-[minmax(480px,1fr)_380px] lg:gap-5 lg:px-5 lg:py-5">
+        <main className="flex min-h-[62vh] min-w-0 flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-zinc-200 bg-[#f8f8f6] p-4 shadow-sm lg:min-h-[calc(100vh-2.5rem)] lg:p-8">
+          <div className="flex w-full min-w-0 justify-center">
+            <ReceiptFrame data={data} template={template} />
           </div>
           <DownloadButton filename={`tickel-${safeFilenamePart(data.date)}.png`} />
         </main>
