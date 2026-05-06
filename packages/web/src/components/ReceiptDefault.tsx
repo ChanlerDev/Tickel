@@ -29,7 +29,7 @@ export function ReceiptDefault({ data }: Props) {
       <div className="mb-3">
         <div className="flex justify-between">
           <span className="text-gray-500">PROJECT</span>
-          <span className="font-bold uppercase">{data.title}</span>
+          <span className="max-w-[150px] break-words text-right font-bold uppercase">{data.title}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">DATE</span>
@@ -49,8 +49,8 @@ export function ReceiptDefault({ data }: Props) {
         <>
           {/* Multi-model: each model as a "dish" with full detail */}
           {data.models!.map((m, i) => (
-            <div key={m.model}>
-              <div className="font-bold text-[11px] mb-1">{shortModel(m.model)}</div>
+          <div key={m.model}>
+              <div className="mb-1 break-words text-[11px] font-bold">{shortModel(m.model)}</div>
               <div className="flex justify-between py-0.5 pl-2">
                 <span className="text-gray-500">INPUT</span>
                 <span>{formatTokens(m.in)}</span>
