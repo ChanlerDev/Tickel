@@ -6,6 +6,7 @@
     "build:web": "pnpm --filter tickel-web build",
     "build:cli": "pnpm --filter tickel build",
     "test:cli": "pnpm --filter tickel test",
+    "sync:prices": "node scripts/sync-prices.mjs",
     "agent:check": "node scripts/agent-check.mjs",
     "agent:release": "node scripts/agent-release.mjs"
   }
