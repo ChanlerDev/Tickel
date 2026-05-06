@@ -175,6 +175,19 @@ Query params:
 
 从 URL params 解析为结构化数据后，根据 `templateId` 选择模板组件渲染。
 
+### 手动编辑
+
+Web 页面将 URL 参数作为初始值载入，然后在客户端维护可编辑草稿。用户可以在导出前调整:
+- 项目名
+- 日期
+- 模板
+- agent 名称
+- model 名称
+- input/output/cache token
+- model subtotal cost
+
+编辑模型明细时，页面会重新计算收据总 token 和总费用；PNG 导出始终捕获编辑后的收据，不回读原始 URL。
+
 ### 模板系统
 
 #### `default` — 热敏打印小票风格
