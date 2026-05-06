@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **feat**: Claude Code sub-agent 用量 — session 收据会读取 `<session-id>/subagents/*.jsonl`，将 sub-agent token 按模型合并进小票明细和总费用
+
 ## 0.2.4
 
 - **fix**: 子目录兼容 — 在项目子目录运行时，向上逐级查找 `~/.claude/projects/` 中匹配的 slug 目录，不再要求必须在会话启动目录运行

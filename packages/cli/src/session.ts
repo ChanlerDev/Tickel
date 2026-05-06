@@ -116,53 +116,70 @@ export function readSession(sessionId: string): SessionUsage | null {
 }
 
 function parseSessionFile(file: string, projectSlug: string, dateFilter?: string): SessionUsage | null {
-  const lines = fs.readFileSync(file, "utf-8").split("\n").filter(Boolean);
-
   const modelMap = new Map<string, ModelUsage>();
   let firstTimestamp: Date | null = null;
   let hasUsage = false;
 
-  for (const line of lines) {
-    try {
-      const entry: MessageEntry = JSON.parse(line);
-      const timestamp = parseTimestamp(entry.timestamp);
-      if (timestamp && !firstTimestamp) {
-        firstTimestamp = timestamp;
-      }
-      const msg = entry.message;
-      if (msg?.usage) {
-        if (dateFilter && (!timestamp || formatLocalDate(timestamp) !== dateFilter)) {
-          continue;
-        }
-        const msgModel = msg.model && msg.model !== "unknown" && msg.model !== "<synthetic>"
-          ? msg.model
-          : null;
-        if (!msgModel) continue;
+  function addEntry(entry: MessageEntry): void {
+    const timestamp = parseTimestamp(entry.timestamp);
+    if (timestamp && !firstTimestamp) {
+      firstTimestamp = timestamp;
+    }
+    const msg = entry.message;
+    if (!msg?.usage) return;
 
-        hasUsage = true;
-        const existing = modelMap.get(msgModel);
-        const inTok = msg.usage.input_tokens ?? 0;
-        const outTok = msg.usage.output_tokens ?? 0;
-        const cwTok = msg.usage.cache_creation_input_tokens ?? 0;
-        const crTok = msg.usage.cache_read_input_tokens ?? 0;
+    if (dateFilter && (!timestamp || formatLocalDate(timestamp) !== dateFilter)) {
+      return;
+    }
+    const msgModel = msg.model && msg.model !== "unknown" && msg.model !== "<synthetic>"
+      ? msg.model
+      : null;
+    if (!msgModel) return;
 
-        if (existing) {
-          existing.inputTokens += inTok;
-          existing.outputTokens += outTok;
-          existing.cacheWriteTokens += cwTok;
-          existing.cacheReadTokens += crTok;
-        } else {
-          modelMap.set(msgModel, {
-            model: msgModel,
-            inputTokens: inTok,
-            outputTokens: outTok,
-            cacheWriteTokens: cwTok,
-            cacheReadTokens: crTok,
-          });
-        }
+    hasUsage = true;
+    const existing = modelMap.get(msgModel);
+    const inTok = msg.usage.input_tokens ?? 0;
+    const outTok = msg.usage.output_tokens ?? 0;
+    const cwTok = msg.usage.cache_creation_input_tokens ?? 0;
+    const crTok = msg.usage.cache_read_input_tokens ?? 0;
+
+    if (existing) {
+      existing.inputTokens += inTok;
+      existing.outputTokens += outTok;
+      existing.cacheWriteTokens += cwTok;
+      existing.cacheReadTokens += crTok;
+    } else {
+      modelMap.set(msgModel, {
+        model: msgModel,
+        inputTokens: inTok,
+        outputTokens: outTok,
+        cacheWriteTokens: cwTok,
+        cacheReadTokens: crTok,
+      });
+    }
+  }
+
+  function addJsonlFile(jsonlFile: string): void {
+    const lines = fs.readFileSync(jsonlFile, "utf-8").split("\n").filter(Boolean);
+    for (const line of lines) {
+      try {
+        addEntry(JSON.parse(line) as MessageEntry);
+      } catch {
+        // skip malformed lines
       }
-    } catch {
-      // skip malformed lines
+    }
+  }
+
+  addJsonlFile(file);
+
+  const sessionId = path.basename(file, ".jsonl");
+  const subagentsDir = path.join(path.dirname(file), sessionId, "subagents");
+  if (fs.existsSync(subagentsDir) && fs.statSync(subagentsDir).isDirectory()) {
+    const subagentFiles = fs.readdirSync(subagentsDir)
+      .filter(f => f.endsWith(".jsonl"))
+      .sort();
+    for (const subagentFile of subagentFiles) {
+      addJsonlFile(path.join(subagentsDir, subagentFile));
     }
   }
 
