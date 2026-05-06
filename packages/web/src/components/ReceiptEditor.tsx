@@ -50,79 +50,100 @@ export function ReceiptEditor({ data, onChange }: Props) {
   }
 
   return (
-    <form className="w-full rounded-lg border border-[#d9cfbd] bg-[#fffdf8] p-4 shadow-sm">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Details</h2>
-          <p className="mt-1 text-xs leading-relaxed text-zinc-500">Edit the receipt before export.</p>
+    <form className="w-full rounded-lg border border-zinc-200 bg-white shadow-sm">
+      <div className="border-b border-zinc-200 px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-zinc-950">Details</h2>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-500">Edit the data. Template style stays isolated.</p>
+          </div>
+          <button
+            type="button"
+            onClick={addModel}
+            className="shrink-0 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
+          >
+            Add
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={addModel}
-          className="shrink-0 rounded-md border border-[#cbbd9f] px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-[#f4efe5]"
-        >
-          Add
-        </button>
       </div>
 
-      <div className="grid gap-3">
-        <Field label="Project">
-          <input value={data.title} onChange={(e) => update({ title: e.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Date">
-          <input type="date" value={data.date} onChange={(e) => update({ date: e.target.value })} className={inputClass} />
-        </Field>
-        <Field label="Template">
-          <select value={data.templateId} onChange={(e) => update({ templateId: e.target.value })} className={inputClass}>
-            {receiptTemplates.map((template) => (
-              <option key={template.id} value={template.id}>{template.label}</option>
+      <div className="grid gap-4 px-4 py-4">
+        <div>
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Receipt</div>
+          <div className="grid gap-3">
+            <Field label="Project">
+              <input value={data.title} onChange={(e) => update({ title: e.target.value })} className={inputClass} />
+            </Field>
+            <Field label="Date">
+              <input type="date" value={data.date} onChange={(e) => update({ date: e.target.value })} className={inputClass} />
+            </Field>
+            <Field label="Template">
+              <select value={data.templateId} onChange={(e) => update({ templateId: e.target.value })} className={inputClass}>
+                {receiptTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>{template.label}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Usage</div>
+          <div className="space-y-3">
+            {models.map((model, index) => (
+              <section key={`${model.agent}-${model.model}-${index}`} className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div className="text-xs font-semibold text-zinc-800">Model {index + 1}</div>
+                  <button
+                    type="button"
+                    onClick={() => removeModel(index)}
+                    disabled={models.length === 1}
+                    className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <div className="grid gap-3">
+                  <Field label="Agent">
+                    <input value={model.agent ?? ""} onChange={(e) => updateModel(index, "agent", e.target.value)} className={inputClass} />
+                  </Field>
+                  <Field label="Model">
+                    <input value={model.model} onChange={(e) => updateModel(index, "model", e.target.value)} className={inputClass} />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Input">
+                      <input inputMode="numeric" value={model.in} onChange={(e) => updateModel(index, "in", e.target.value)} className={inputClass} />
+                    </Field>
+                    <Field label="Output">
+                      <input inputMode="numeric" value={model.out} onChange={(e) => updateModel(index, "out", e.target.value)} className={inputClass} />
+                    </Field>
+                    <Field label="Cache W">
+                      <input inputMode="numeric" value={model.cw} onChange={(e) => updateModel(index, "cw", e.target.value)} className={inputClass} />
+                    </Field>
+                    <Field label="Cache R">
+                      <input inputMode="numeric" value={model.cr} onChange={(e) => updateModel(index, "cr", e.target.value)} className={inputClass} />
+                    </Field>
+                  </div>
+                  <Field label="Cost">
+                    <input inputMode="decimal" value={model.cost} onChange={(e) => updateModel(index, "cost", e.target.value)} className={inputClass} />
+                  </Field>
+                </div>
+              </section>
             ))}
-          </select>
-        </Field>
-      </div>
+          </div>
+        </div>
 
-      <div className="mt-5 space-y-3">
-        {models.map((model, index) => (
-          <section key={`${model.agent}-${model.model}-${index}`} className="rounded-lg border border-[#e4d8c2] bg-[#fbf7ee] p-3">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div className="text-xs font-semibold text-zinc-800">Model {index + 1}</div>
-              <button
-                type="button"
-                onClick={() => removeModel(index)}
-                disabled={models.length === 1}
-                className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-[#eee5d5] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Remove
-              </button>
-            </div>
-
-            <div className="grid gap-3">
-              <Field label="Agent">
-                <input value={model.agent ?? ""} onChange={(e) => updateModel(index, "agent", e.target.value)} className={inputClass} />
-              </Field>
-              <Field label="Model">
-                <input value={model.model} onChange={(e) => updateModel(index, "model", e.target.value)} className={inputClass} />
-              </Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Input">
-                  <input inputMode="numeric" value={model.in} onChange={(e) => updateModel(index, "in", e.target.value)} className={inputClass} />
-                </Field>
-                <Field label="Output">
-                  <input inputMode="numeric" value={model.out} onChange={(e) => updateModel(index, "out", e.target.value)} className={inputClass} />
-                </Field>
-                <Field label="Cache W">
-                  <input inputMode="numeric" value={model.cw} onChange={(e) => updateModel(index, "cw", e.target.value)} className={inputClass} />
-                </Field>
-                <Field label="Cache R">
-                  <input inputMode="numeric" value={model.cr} onChange={(e) => updateModel(index, "cr", e.target.value)} className={inputClass} />
-                </Field>
-              </div>
-              <Field label="Cost">
-                <input inputMode="decimal" value={model.cost} onChange={(e) => updateModel(index, "cost", e.target.value)} className={inputClass} />
-              </Field>
-            </div>
-          </section>
-        ))}
+        <div className="rounded-lg border border-zinc-200 bg-zinc-950 p-3 text-white">
+          <div className="text-[11px] uppercase tracking-[0.14em] text-zinc-400">Total</div>
+          <div className="mt-1 font-mono text-2xl font-bold">${data.cost.toFixed(4)}</div>
+          <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-zinc-300">
+            <span>Input {data.inputTokens.toLocaleString()}</span>
+            <span>Output {data.outputTokens.toLocaleString()}</span>
+            <span>Cache W {data.cacheWriteTokens.toLocaleString()}</span>
+            <span>Cache R {data.cacheReadTokens.toLocaleString()}</span>
+          </div>
+        </div>
       </div>
     </form>
   );
@@ -160,4 +181,4 @@ function sum(models: NonNullable<ReceiptData["models"]>, key: "in" | "out" | "cw
   return models.reduce((total, model) => total + model[key], 0);
 }
 
-const inputClass = "h-9 w-full rounded-md border border-[#d7c9ad] bg-white px-3 text-sm text-zinc-950 outline-none focus:border-[#7b6a4d]";
+const inputClass = "h-9 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-950 outline-none transition-colors focus:border-zinc-700";

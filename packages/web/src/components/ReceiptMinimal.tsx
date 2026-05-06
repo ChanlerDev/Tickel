@@ -9,8 +9,7 @@ export function ReceiptMinimal({ data }: Props) {
 
   return (
     <div
-      id="receipt"
-      className="w-80 rounded-lg bg-white px-8 py-6 shadow-lg"
+      className="w-full rounded-lg bg-white px-8 py-6 shadow-lg"
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-6">

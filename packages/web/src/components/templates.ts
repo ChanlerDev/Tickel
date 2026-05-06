@@ -6,13 +6,14 @@ import { ReceiptLedger } from "./ReceiptLedger";
 export interface ReceiptTemplate {
   id: string;
   label: string;
+  width: number;
   Component: (props: { data: ReceiptData }) => JSX.Element;
 }
 
 export const receiptTemplates: ReceiptTemplate[] = [
-  { id: "default", label: "Thermal", Component: ReceiptDefault },
-  { id: "minimal", label: "Minimal", Component: ReceiptMinimal },
-  { id: "ledger", label: "Ledger", Component: ReceiptLedger },
+  { id: "default", label: "Thermal", width: 288, Component: ReceiptDefault },
+  { id: "minimal", label: "Minimal", width: 320, Component: ReceiptMinimal },
+  { id: "ledger", label: "Ledger", width: 380, Component: ReceiptLedger },
 ];
 
 export function getReceiptTemplate(templateId: string): ReceiptTemplate {

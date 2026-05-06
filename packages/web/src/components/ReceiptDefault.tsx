@@ -13,8 +13,7 @@ export function ReceiptDefault({ data }: Props) {
 
   return (
     <div
-      id="receipt"
-      className="bg-white w-72 font-mono text-xs px-6 py-8 shadow-md"
+      className="w-full bg-white px-6 py-8 font-mono text-xs shadow-md"
       style={{ fontFamily: "'Courier New', monospace" }}
     >
       {/* Header */}

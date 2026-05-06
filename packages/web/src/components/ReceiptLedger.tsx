@@ -19,13 +19,8 @@ export function ReceiptLedger({ data }: Props) {
 
   return (
     <div
-      id="receipt"
-      className="overflow-hidden rounded-lg bg-[#f7f1e6] text-[#23201c] shadow-xl"
-      style={{
-        width: "min(100%, 380px)",
-        maxWidth: "calc(100vw - 72px)",
-        fontFamily: "Georgia, 'Times New Roman', serif",
-      }}
+      className="w-full overflow-hidden rounded-lg bg-[#f7f1e6] text-[#23201c] shadow-xl"
+      style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
     >
       <div className="border-b border-[#d8c6a8] bg-[#2f473f] px-5 py-5 text-[#f7f1e6] sm:px-6">
         <div className="grid gap-3">

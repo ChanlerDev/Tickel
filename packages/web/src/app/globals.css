@@ -2,15 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-#receipt,
-#receipt * {
+.receipt-frame {
+  container-type: inline-size;
+  isolation: isolate;
+}
+
+.receipt-frame,
+.receipt-frame * {
+  box-sizing: border-box;
+  min-width: 0;
+  overflow-wrap: anywhere;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
 }
 
-#receipt.is-exporting,
-#receipt.is-exporting * {
+.receipt-frame.is-exporting,
+.receipt-frame.is-exporting * {
   box-shadow: none !important;
   text-shadow: none !important;
   background-clip: border-box !important;
+}
+
+@media (max-width: 420px) {
+  .receipt-frame {
+    font-size: 0.92rem;
+  }
 }
