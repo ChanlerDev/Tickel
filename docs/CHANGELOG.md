@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **chore**: 同步官方模型价格表
+
 - **feat**: 官方模型价格表同步 — 基于 models.dev 官方 provider allowlist 生成价格表快照，并支持定时同步 PR 与带 `release:patch` 标签的合并后自动发版
 
 ## 0.2.5
