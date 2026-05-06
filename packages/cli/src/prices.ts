@@ -1,4 +1,6 @@
 import type { ModelUsage } from "./session.js";
+import { GENERATED_MODEL_PRICES, MODEL_ID_INDEX } from "./generated/prices.js";
+import { MODEL_ID_OVERRIDES } from "./model-overrides.js";
 
 export interface ModelPricing {
   input: number;       // USD per 1M tokens
@@ -7,44 +9,55 @@ export interface ModelPricing {
   cache_read: number;
 }
 
-export const PRICES: Record<string, ModelPricing> = {
-  // Claude Opus 4.7
-  "claude-opus-4-7":    { input: 5.00,  output: 25.00,  cache_write: 6.25,  cache_read: 0.50 },
-  "claude-4.7-opus":    { input: 5.00,  output: 25.00,  cache_write: 6.25,  cache_read: 0.50 },
-  // Claude Opus 4.6
-  "claude-opus-4-6":    { input: 5.00,  output: 25.00,  cache_write: 6.25,  cache_read: 0.50 },
-  "claude-4.6-opus":    { input: 5.00,  output: 25.00,  cache_write: 6.25,  cache_read: 0.50 },
-  // Claude Sonnet 4.6
-  "claude-sonnet-4-6":  { input: 3.00,  output: 15.00,  cache_write: 3.75,  cache_read: 0.30 },
-  "claude-4.6-sonnet":  { input: 3.00,  output: 15.00,  cache_write: 3.75,  cache_read: 0.30 },
-  // Claude Opus 4.5
-  "claude-opus-4-5":    { input: 5.00,  output: 25.00,  cache_write: 6.25,  cache_read: 0.50 },
-  "claude-4.5-opus":    { input: 5.00,  output: 25.00,  cache_write: 6.25,  cache_read: 0.50 },
-  // Claude Sonnet 4.5
-  "claude-sonnet-4-5":  { input: 3.00,  output: 15.00,  cache_write: 3.75,  cache_read: 0.30 },
-  "claude-4.5-sonnet":  { input: 3.00,  output: 15.00,  cache_write: 3.75,  cache_read: 0.30 },
-  // Claude Opus 4.1
-  "claude-opus-4-1":    { input: 15.00, output: 75.00,  cache_write: 18.75, cache_read: 1.50 },
-  "claude-4.1-opus":    { input: 15.00, output: 75.00,  cache_write: 18.75, cache_read: 1.50 },
-  // Claude Sonnet 4 / Opus 4
-  "claude-sonnet-4-0":  { input: 3.00,  output: 15.00,  cache_write: 3.75,  cache_read: 0.30 },
-  "claude-opus-4-0":    { input: 15.00, output: 75.00,  cache_write: 18.75, cache_read: 1.50 },
-  // Claude Haiku 4.5
-  "claude-haiku-4-5":   { input: 1.00,  output: 5.00,   cache_write: 1.25,  cache_read: 0.10 },
-  "claude-4.5-haiku":   { input: 1.00,  output: 5.00,   cache_write: 1.25,  cache_read: 0.10 },
-  // Claude 3.x series
-  "claude-sonnet-3-7":  { input: 3.00,  output: 15.00,  cache_write: 3.75,  cache_read: 0.30 },
-  "claude-sonnet-3-5":  { input: 3.00,  output: 15.00,  cache_write: 3.75,  cache_read: 0.30 },
-  "claude-haiku-3-5":   { input: 0.80,  output: 4.00,   cache_write: 1.00,  cache_read: 0.08 },
-  "claude-opus-3":      { input: 15.00, output: 75.00,  cache_write: 18.75, cache_read: 1.50 },
-  "claude-haiku-3":     { input: 0.25,  output: 1.25,   cache_write: 0.30,  cache_read: 0.025 },
-  // GPT-4o series
-  "gpt-4o":             { input: 2.50,  output: 10.00,  cache_write: 0,     cache_read: 1.25 },
-  "gpt-4o-mini":        { input: 0.15,  output: 0.60,   cache_write: 0,     cache_read: 0.075 },
-  // Gemini
-  "gemini-2.0-flash":   { input: 0.10,  output: 0.40,   cache_write: 0,     cache_read: 0.025 },
-  "gemini-1.5-pro":     { input: 1.25,  output: 5.00,   cache_write: 0,     cache_read: 0.3125 },
-};
+export const PRICES: Record<string, ModelPricing> = buildLegacyPriceIndex();
+
+function buildLegacyPriceIndex(): Record<string, ModelPricing> {
+  const prices: Record<string, ModelPricing> = {};
+
+  for (const [modelId, providerKeys] of Object.entries(MODEL_ID_INDEX)) {
+    if (providerKeys.length === 1) {
+      const pricing = GENERATED_MODEL_PRICES[providerKeys[0]];
+      const normalized = toModelPricing(pricing);
+      if (normalized) prices[modelId] = normalized;
+    }
+  }
+
+  for (const override of Object.keys(MODEL_ID_OVERRIDES)) {
+    const pricing = resolvePricing(override);
+    if (pricing) prices[override] = pricing;
+  }
+
+  return prices;
+}
+
+export function resolvePricing(model: string): ModelPricing | null {
+  const overrideKey = MODEL_ID_OVERRIDES[model];
+  if (overrideKey) {
+    return toModelPricing(GENERATED_MODEL_PRICES[overrideKey]);
+  }
+
+  const providerScoped = GENERATED_MODEL_PRICES[model];
+  if (providerScoped) {
+    return toModelPricing(providerScoped);
+  }
+
+  const providerKeys = MODEL_ID_INDEX[model];
+  if (!providerKeys || providerKeys.length !== 1) {
+    return null;
+  }
+
+  return toModelPricing(GENERATED_MODEL_PRICES[providerKeys[0]]);
+}
+
+function toModelPricing(pricing: ModelPricing | undefined): ModelPricing | null {
+  if (!pricing) return null;
+  return {
+    input: pricing.input,
+    output: pricing.output,
+    cache_write: pricing.cache_write,
+    cache_read: pricing.cache_read,
+  };
+}
 
 export function computeCost(
   model: string,
@@ -53,7 +66,7 @@ export function computeCost(
   cacheWriteTokens: number,
   cacheReadTokens: number
 ): number {
-  const pricing = PRICES[model];
+  const pricing = resolvePricing(model);
   if (!pricing) return 0;
   const M = 1_000_000;
   // input_tokens already includes cache_write + cache_read,

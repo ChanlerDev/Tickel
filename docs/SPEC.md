@@ -49,7 +49,9 @@ CLI 遍历主会话和 sub-agent JSONL，按 `message.model` 累加 token 数。
 
 ### 价格计算
 
-内置价格表，单位为 USD/1M tokens。支持字段:
+CLI 使用仓库内置价格快照计算费用，价格单位为 USD/1M tokens。价格快照由同步脚本从 models.dev 拉取官方 provider allowlist 后生成，运行时不联网获取价格。
+
+支持字段:
 - `input` — 输入 token 单价
 - `output` — 输出 token 单价
 - `cache_write` — 缓存写入单价
@@ -67,7 +69,11 @@ cost = (base_input_tokens / 1M) × input_price
      + (cache_read_tokens / 1M) × cache_read_price
 ```
 
-未知模型返回 cost = 0。
+模型解析规则:
+- 优先匹配手工维护的非标准 model id 映射（例如 Claude Code session 中不符合官方 ID 的模型名）
+- 其次匹配 `provider/model-id` 形式的精确 key
+- 最后在 allowlist provider 中仅当 `model-id` 唯一时自动匹配
+- 未知或歧义模型返回 cost = 0
 
 ### 命令
 
@@ -153,23 +159,6 @@ Query params:
 从目录 slug 推断项目名:
 - slug 格式: `-Users-chanler-personal-Tickel` → 取最后一段 `Tickel`
 
-## 支持的模型价格
-
-| Model | Input | Output | Cache Write | Cache Read |
-|-------|-------|--------|-------------|------------|
-| claude-opus-4-5 | $15.00 | $75.00 | $18.75 | $1.50 |
-| claude-sonnet-4-5 | $3.00 | $15.00 | $3.75 | $0.30 |
-| claude-sonnet-3-7 | $3.00 | $15.00 | $3.75 | $0.30 |
-| claude-sonnet-3-5 | $3.00 | $15.00 | $3.75 | $0.30 |
-| claude-haiku-3-5 | $0.80 | $4.00 | $1.00 | $0.08 |
-| claude-opus-3 | $15.00 | $75.00 | $18.75 | $1.50 |
-| gpt-4o | $2.50 | $10.00 | — | $1.25 |
-| gpt-4o-mini | $0.15 | $0.60 | — | $0.075 |
-| gemini-2.0-flash | $0.10 | $0.40 | — | $0.025 |
-| gemini-1.5-pro | $1.25 | $5.00 | — | $0.3125 |
-
-*单位: USD per 1M tokens*
-
 ## 分发
 
 - CLI: npm 包 `tickel`，全局安装 `npm i -g tickel`
@@ -178,4 +167,4 @@ Query params:
 ## 扩展预留
 
 - 更多模板（通过 `templateId` 扩展）
-- 价格表远程更新
+- 更多官方 provider 价格快照

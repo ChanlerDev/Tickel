@@ -1,0 +1,41 @@
+name: Sync model prices
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # 11:00 Asia/Shanghai
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm sync:prices -- --changelog
+
+      - run: pnpm --filter tickel test
+
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          branch: codex/auto-sync-model-prices
+          delete-branch: true
+          title: "chore(prices): sync official model prices"
+          commit-message: "chore(prices): sync official model prices"
+          body: |
+            Automated sync from models.dev using Tickel's official provider allowlist.
+
+            Add the `release:patch` label before merging if this price update should be released immediately.

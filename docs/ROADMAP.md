@@ -2,13 +2,13 @@
 
 ## Planned
 
-- [ ] 官方模型价格表同步 — 基于官方 provider allowlist 从 models.dev 生成价格表快照，降低手动维护错误
 - [ ] CodeBody 支持 — 兼容 CodeBody 的会话数据读取和用量统计
 - [ ] 收据页面美化 — 调整 Web 收据模板样式
 - [ ] README — GitHub repo 添加使用说明
 
 ## Done
 
+- [x] 官方模型价格表同步 — 基于官方 provider allowlist 从 models.dev 生成价格表快照，降低手动维护错误
 - [x] Claude Code sub-agent 用量 — 读取 `<session-id>/subagents/*.jsonl` 并按模型平铺合并到小票总费用
 - [x] 子目录兼容 — 在项目子目录运行时向上找 git root 匹配 slug
 - [x] 多模型分账 — 单 session 内按模型分别统计 token 和费用，用户切模型时正确拆分
