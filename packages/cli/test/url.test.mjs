@@ -93,3 +93,23 @@ test("buildUrl keeps legacy query params while adding v2 payload", () => {
   assert.ok(url.searchParams.get("models"));
   assert.ok(url.searchParams.get("payload"));
 });
+
+test("buildUrl accepts a configured web URL and agent", () => {
+  const url = new URL(buildUrl({
+    usage,
+    cost: 0.1234,
+    templateId: "ledger",
+    webUrl: "http://localhost:3000/app",
+    agent: "codebuddy",
+  }));
+
+  assert.equal(url.origin, "http://localhost:3000");
+  assert.equal(url.pathname, "/app/");
+
+  const encoded = url.searchParams.get("payload");
+  assert.ok(encoded);
+  const payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
+
+  assert.equal(payload.source.agent, "codebuddy");
+  assert.equal(payload.receipt.items[0].agent, "codebuddy");
+});
