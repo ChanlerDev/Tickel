@@ -2,6 +2,7 @@
 
 ## Planned
 
+- [ ] 官方模型价格表同步 — 基于官方 provider allowlist 从 models.dev 生成价格表快照，降低手动维护错误
 - [ ] CodeBody 支持 — 兼容 CodeBody 的会话数据读取和用量统计
 - [ ] 收据页面美化 — 调整 Web 收据模板样式
 - [ ] README — GitHub repo 添加使用说明
