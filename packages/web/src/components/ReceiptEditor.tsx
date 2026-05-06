@@ -1,4 +1,5 @@
 import { ReceiptData } from "@/lib/receipt";
+import { receiptTemplates } from "./templates";
 
 interface Props {
   data: ReceiptData;
@@ -73,8 +74,9 @@ export function ReceiptEditor({ data, onChange }: Props) {
         </Field>
         <Field label="Template">
           <select value={data.templateId} onChange={(e) => update({ templateId: e.target.value })} className={inputClass}>
-            <option value="default">Thermal</option>
-            <option value="minimal">Minimal</option>
+            {receiptTemplates.map((template) => (
+              <option key={template.id} value={template.id}>{template.label}</option>
+            ))}
           </select>
         </Field>
       </div>

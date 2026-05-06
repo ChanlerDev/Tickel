@@ -3,10 +3,9 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { parseReceiptParams } from "@/lib/receipt";
-import { ReceiptDefault } from "./ReceiptDefault";
-import { ReceiptMinimal } from "./ReceiptMinimal";
 import { DownloadButton } from "./DownloadButton";
 import { ReceiptEditor } from "./ReceiptEditor";
+import { getReceiptTemplate } from "./templates";
 
 export function ReceiptPage() {
   const params = useSearchParams();
@@ -16,7 +15,7 @@ export function ReceiptPage() {
   const initialData = useMemo(() => parseReceiptParams(raw), [params]);
   const [data, setData] = useState(initialData);
 
-  const Receipt = data.templateId === "minimal" ? ReceiptMinimal : ReceiptDefault;
+  const { Component: Receipt } = getReceiptTemplate(data.templateId);
 
   return (
     <div className="flex min-h-screen flex-col items-center gap-6 bg-zinc-50 px-4 py-8">
