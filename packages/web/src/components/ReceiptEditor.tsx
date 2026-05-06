@@ -50,22 +50,22 @@ export function ReceiptEditor({ data, onChange }: Props) {
   }
 
   return (
-    <form className="w-full max-w-3xl rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <form className="w-full rounded-lg border border-[#d9cfbd] bg-[#fffdf8] p-4 shadow-sm">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Receipt details</h2>
-          <p className="text-xs text-zinc-500">Adjust the values before exporting the PNG.</p>
+          <h2 className="text-sm font-semibold text-zinc-950">Details</h2>
+          <p className="mt-1 text-xs leading-relaxed text-zinc-500">Edit the receipt before export.</p>
         </div>
         <button
           type="button"
           onClick={addModel}
-          className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
+          className="shrink-0 rounded-md border border-[#cbbd9f] px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-[#f4efe5]"
         >
-          Add model
+          Add
         </button>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3">
         <Field label="Project">
           <input value={data.title} onChange={(e) => update({ title: e.target.value })} className={inputClass} />
         </Field>
@@ -81,58 +81,48 @@ export function ReceiptEditor({ data, onChange }: Props) {
         </Field>
       </div>
 
-      <div className="mt-4 overflow-x-auto">
-        <table className="min-w-[720px] w-full border-collapse text-left text-xs">
-          <thead>
-            <tr className="border-b border-zinc-200 text-zinc-500">
-              <th className="py-2 pr-2 font-medium">Agent</th>
-              <th className="py-2 pr-2 font-medium">Model</th>
-              <th className="py-2 pr-2 font-medium">Input</th>
-              <th className="py-2 pr-2 font-medium">Output</th>
-              <th className="py-2 pr-2 font-medium">Cache W</th>
-              <th className="py-2 pr-2 font-medium">Cache R</th>
-              <th className="py-2 pr-2 font-medium">Cost</th>
-              <th className="py-2 font-medium" />
-            </tr>
-          </thead>
-          <tbody>
-            {models.map((model, index) => (
-              <tr key={`${model.agent}-${model.model}-${index}`} className="border-b border-zinc-100">
-                <td className="py-2 pr-2">
-                  <input value={model.agent ?? ""} onChange={(e) => updateModel(index, "agent", e.target.value)} className={tableInputClass} />
-                </td>
-                <td className="py-2 pr-2">
-                  <input value={model.model} onChange={(e) => updateModel(index, "model", e.target.value)} className={tableInputClass} />
-                </td>
-                <td className="py-2 pr-2">
-                  <input inputMode="numeric" value={model.in} onChange={(e) => updateModel(index, "in", e.target.value)} className={tableInputClass} />
-                </td>
-                <td className="py-2 pr-2">
-                  <input inputMode="numeric" value={model.out} onChange={(e) => updateModel(index, "out", e.target.value)} className={tableInputClass} />
-                </td>
-                <td className="py-2 pr-2">
-                  <input inputMode="numeric" value={model.cw} onChange={(e) => updateModel(index, "cw", e.target.value)} className={tableInputClass} />
-                </td>
-                <td className="py-2 pr-2">
-                  <input inputMode="numeric" value={model.cr} onChange={(e) => updateModel(index, "cr", e.target.value)} className={tableInputClass} />
-                </td>
-                <td className="py-2 pr-2">
-                  <input inputMode="decimal" value={model.cost} onChange={(e) => updateModel(index, "cost", e.target.value)} className={tableInputClass} />
-                </td>
-                <td className="py-2 text-right">
-                  <button
-                    type="button"
-                    onClick={() => removeModel(index)}
-                    disabled={models.length === 1}
-                    className="rounded px-2 py-1 text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-5 space-y-3">
+        {models.map((model, index) => (
+          <section key={`${model.agent}-${model.model}-${index}`} className="rounded-lg border border-[#e4d8c2] bg-[#fbf7ee] p-3">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="text-xs font-semibold text-zinc-800">Model {index + 1}</div>
+              <button
+                type="button"
+                onClick={() => removeModel(index)}
+                disabled={models.length === 1}
+                className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-[#eee5d5] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Remove
+              </button>
+            </div>
+
+            <div className="grid gap-3">
+              <Field label="Agent">
+                <input value={model.agent ?? ""} onChange={(e) => updateModel(index, "agent", e.target.value)} className={inputClass} />
+              </Field>
+              <Field label="Model">
+                <input value={model.model} onChange={(e) => updateModel(index, "model", e.target.value)} className={inputClass} />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Input">
+                  <input inputMode="numeric" value={model.in} onChange={(e) => updateModel(index, "in", e.target.value)} className={inputClass} />
+                </Field>
+                <Field label="Output">
+                  <input inputMode="numeric" value={model.out} onChange={(e) => updateModel(index, "out", e.target.value)} className={inputClass} />
+                </Field>
+                <Field label="Cache W">
+                  <input inputMode="numeric" value={model.cw} onChange={(e) => updateModel(index, "cw", e.target.value)} className={inputClass} />
+                </Field>
+                <Field label="Cache R">
+                  <input inputMode="numeric" value={model.cr} onChange={(e) => updateModel(index, "cr", e.target.value)} className={inputClass} />
+                </Field>
+              </div>
+              <Field label="Cost">
+                <input inputMode="decimal" value={model.cost} onChange={(e) => updateModel(index, "cost", e.target.value)} className={inputClass} />
+              </Field>
+            </div>
+          </section>
+        ))}
       </div>
     </form>
   );
@@ -170,5 +160,4 @@ function sum(models: NonNullable<ReceiptData["models"]>, key: "in" | "out" | "cw
   return models.reduce((total, model) => total + model[key], 0);
 }
 
-const inputClass = "h-9 rounded-md border border-zinc-300 px-3 text-sm text-zinc-950 outline-none focus:border-zinc-500";
-const tableInputClass = "h-8 w-full rounded border border-zinc-200 px-2 text-xs text-zinc-950 outline-none focus:border-zinc-500";
+const inputClass = "h-9 w-full rounded-md border border-[#d7c9ad] bg-white px-3 text-sm text-zinc-950 outline-none focus:border-[#7b6a4d]";

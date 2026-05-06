@@ -16,19 +16,21 @@ export function DownloadButton({ filename }: Props) {
       const node = document.getElementById("receipt");
       if (!node) throw new Error("receipt element not found");
 
-      const scale = 3; // retina quality
-      const blob = await domtoimage.toBlob(node, {
-        width: node.offsetWidth * scale,
-        height: node.offsetHeight * scale,
-        style: { transform: `scale(${scale})`, transformOrigin: "top left" },
+      node.classList.add("is-exporting");
+      const dataUrl = await domtoimage.toPng(node, {
+        width: node.offsetWidth,
+        height: node.offsetHeight,
+        pixelRatio: 3,
+        cacheBust: true,
       });
-      const url = URL.createObjectURL(blob);
+      node.classList.remove("is-exporting");
+
       const a = document.createElement("a");
-      a.href = url;
+      a.href = dataUrl;
       a.download = filename;
       a.click();
-      URL.revokeObjectURL(url);
     } catch (err) {
+      document.getElementById("receipt")?.classList.remove("is-exporting");
       console.error("Download failed:", err);
       alert("Download failed. See console.");
     } finally {
@@ -40,7 +42,7 @@ export function DownloadButton({ filename }: Props) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="mt-4 px-6 py-2 bg-black text-white text-sm rounded-full hover:bg-gray-800 disabled:opacity-50 transition-colors"
+      className="rounded-md bg-zinc-950 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
     >
       {loading ? "Generating..." : "Download PNG"}
     </button>

@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#receipt,
+#receipt * {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+#receipt.is-exporting,
+#receipt.is-exporting * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-clip: border-box !important;
+}
