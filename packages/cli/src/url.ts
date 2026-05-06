@@ -8,10 +8,12 @@ export interface TickelParams {
   usage: SessionUsage;
   cost: number;
   templateId?: string;
+  webUrl?: string;
+  agent?: string;
 }
 
 export function buildUrl(params: TickelParams): string {
-  const { usage, cost, templateId = "default" } = params;
+  const { usage, cost, templateId = "default", webUrl = BASE_URL, agent = DEFAULT_AGENT } = params;
   const modelBreakdown = buildModelBreakdown(usage);
   const p = new URLSearchParams({
     model: usage.model,
@@ -42,7 +44,7 @@ export function buildUrl(params: TickelParams): string {
   p.set("payload", encodePayload({
     version: 2,
     source: {
-      agent: DEFAULT_AGENT,
+      agent,
     },
     receipt: {
       title: usage.projectName,
@@ -56,7 +58,7 @@ export function buildUrl(params: TickelParams): string {
         cacheReadTokens: usage.cacheReadTokens,
       },
       items: modelBreakdown.map(m => ({
-        agent: DEFAULT_AGENT,
+        agent,
         model: m.model,
         inputTokens: m.inputTokens,
         outputTokens: m.outputTokens,
@@ -67,7 +69,12 @@ export function buildUrl(params: TickelParams): string {
     },
   }));
 
-  return `${BASE_URL}/?${p.toString()}`;
+  const url = new URL(webUrl);
+  if (!url.pathname.endsWith("/")) {
+    url.pathname = `${url.pathname}/`;
+  }
+  url.search = p.toString();
+  return url.toString();
 }
 
 interface UrlModelBreakdown {

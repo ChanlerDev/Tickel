@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { readSession, findLatestSession, readTodaySessions, formatLocalDate } from "./session.js";
 import { computeCost, computeCostByModel } from "./prices.js";
 import { buildUrl } from "./url.js";
+import { getConfigPath, loadConfig, promptConfig, resolveOptions, saveConfig } from "./config.js";
 
 const program = new Command();
 
@@ -14,9 +15,10 @@ program
 program
   .command("session [sessionId]", { isDefault: true })
   .description("Generate receipt for a session (default: latest session in cwd project)")
-  .option("-t, --template <id>", "Template ID", "default")
+  .option("-t, --template <id>", "Template ID")
   .option("--print", "Print summary to terminal only, do not open browser")
   .action(async (sessionId: string | undefined, opts: { template: string; print: boolean }) => {
+    const resolvedOptions = resolveOptions(loadConfig(), { templateId: opts.template });
     const sid = sessionId ?? findLatestSession();
     if (!sid) {
       console.error("Error: no session found. Pass a session ID or run from a Claude Code project directory.");
@@ -58,7 +60,13 @@ program
     if (!opts.print) {
       // open@10 is ESM-only; use dynamic import for CJS compatibility
       const { default: open } = await import("open");
-      const url = buildUrl({ usage, cost: totalCost, templateId: opts.template });
+      const url = buildUrl({
+        usage,
+        cost: totalCost,
+        templateId: resolvedOptions.templateId,
+        webUrl: resolvedOptions.webUrl,
+        agent: resolvedOptions.agent,
+      });
       console.log(`\n   Opening receipt: ${url}\n`);
       await open(url);
     }
@@ -67,8 +75,10 @@ program
 program
   .command("today")
   .description("Aggregate all sessions from today across all projects")
+  .option("-t, --template <id>", "Template ID")
   .option("--print", "Print summary only")
-  .action(async (opts: { print: boolean }) => {
+  .action(async (opts: { template?: string; print: boolean }) => {
+    const resolvedOptions = resolveOptions(loadConfig(), { templateId: opts.template });
     const sessions = readTodaySessions();
     if (sessions.length === 0) {
       console.log("\nNo sessions found for today.");
@@ -120,10 +130,26 @@ program
         models: [], // today aggregation doesn't pass per-model to web
       };
       const { default: open } = await import("open");
-      const url = buildUrl({ usage: aggregated, cost: totalCost });
+      const url = buildUrl({
+        usage: aggregated,
+        cost: totalCost,
+        templateId: resolvedOptions.templateId,
+        webUrl: resolvedOptions.webUrl,
+        agent: resolvedOptions.agent,
+      });
       console.log(`   Opening receipt: ${url}\n`);
       await open(url);
     }
+  });
+
+program
+  .command("config")
+  .description("Configure Tickel defaults interactively")
+  .action(async () => {
+    const config = await promptConfig();
+    saveConfig(config);
+    console.log(`Saved Tickel config → ${getConfigPath()}`);
+    console.log(JSON.stringify(resolveOptions(config), null, 2));
   });
 
 program

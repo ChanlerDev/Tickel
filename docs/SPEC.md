@@ -90,6 +90,24 @@ cost = (base_input_tokens / 1M) × input_price
 | `--print` | 仅终端输出摘要，不打开浏览器 |
 | `--version` | 显示版本号 |
 
+### 配置
+
+`tickel config` 启动交互式配置，写入 `~/.config/tickel/config.json`。
+
+支持配置项:
+| 配置项 | 说明 | 默认值 |
+|--------|------|--------|
+| `templateId` | 默认收据模板 | `default` |
+| `webUrl` | 收据 Web 页面地址 | `https://tickel.vercel.app` |
+| `agent` | URL payload 中的默认 coding agent 标识 | `claude-code` |
+
+配置合并顺序:
+1. CLI 显式参数
+2. `~/.config/tickel/config.json`
+3. 内置默认值
+
+`tickel [session-id] -t <id>` 和 `tickel today -t <id>` 会覆盖配置中的默认模板。
+
 ### 终端输出格式
 
 ```
