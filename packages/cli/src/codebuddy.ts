@@ -264,3 +264,96 @@ export function readTodayCodeBuddySessions(now = new Date()): SessionUsage[] {
 
   return results;
 }
+
+// ============================================================================
+// CodeBuddy Model Pricing
+// ============================================================================
+
+export interface CodeBuddyModelPrice {
+  input: number;      // USD per 1M tokens
+  output: number;
+  cacheWrite?: number;
+  cacheRead?: number;
+}
+
+/**
+ * CodeBuddy model prices (USD per 1M tokens)
+ * Prices from Tencent Cloud and DeepSeek official (May 2025)
+ */
+export const CodeBuddyModelPrices: Record<string, CodeBuddyModelPrice> = {
+  // Tencent Hunyuan T1
+  "hunyuan-t1": { input: 0.8, output: 2.0 },
+
+  // Tencent Hunyuan Code
+  "hunyuan-code": { input: 1.0, output: 3.0 },
+
+  // DeepSeek V3
+  "deepseek-v3": {
+    input: 0.27,
+    output: 1.10,
+    cacheWrite: 0.27,
+    cacheRead: 0.07,
+  },
+  "deepseek-v3.1": {
+    input: 0.27,
+    output: 1.10,
+    cacheWrite: 0.27,
+    cacheRead: 0.07,
+  },
+
+  // DeepSeek R1
+  "deepseek-r1": {
+    input: 0.55,
+    output: 2.19,
+    cacheRead: 0.14,
+  },
+
+  // Claude models (reference prices, actual pricing resolved from prices.ts)
+  "claude-sonnet-4.6-1m": { input: 3.0, output: 15.0 },
+};
+
+/**
+ * Compute CodeBuddy session cost
+ * @param model - Model name
+ * @param inputTokens - Total input tokens (includes cache tokens)
+ * @param outputTokens - Output tokens
+ * @param cacheReadTokens - Cache read/hit tokens
+ * @param cacheWriteTokens - Cache write/miss tokens
+ * @returns Cost in USD
+ */
+export function computeCodeBuddyCost(
+  model: string,
+  inputTokens: number,
+  outputTokens: number,
+  cacheReadTokens: number = 0,
+  cacheWriteTokens: number = 0
+): number {
+  const pricing = CodeBuddyModelPrices[model];
+  if (!pricing) return 0;
+
+  const M = 1_000_000;
+
+  // Base input tokens = total input - cache portions (if they were counted separately)
+  // In CodeBuddy, input_tokens already includes cache tokens, so we subtract
+  const baseInputTokens = Math.max(0, inputTokens - cacheReadTokens - cacheWriteTokens);
+
+  let cost = 0;
+
+  // Base input cost
+  cost += (baseInputTokens / M) * pricing.input;
+
+  // Output cost
+  cost += (outputTokens / M) * pricing.output;
+
+  // Cache read cost (usually discounted)
+  if (pricing.cacheRead !== undefined && cacheReadTokens > 0) {
+    cost += (cacheReadTokens / M) * pricing.cacheRead;
+  }
+
+  // Cache write cost (same as input or discounted)
+  if (pricing.cacheWrite !== undefined && cacheWriteTokens > 0) {
+    cost += (cacheWriteTokens / M) * pricing.cacheWrite;
+  }
+
+  return cost;
+}

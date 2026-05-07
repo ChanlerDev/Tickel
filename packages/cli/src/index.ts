@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { readSession, findLatestSession, readTodaySessions, formatLocalDate } from "./session.js";
+import { readCodeBuddySession, findLatestCodeBuddySession, readTodayCodeBuddySessions } from "./codebuddy.js";
 import { computeCost, computeCostByModel } from "./prices.js";
 import { buildUrl } from "./url.js";
 import { getConfigPath, loadConfig, promptConfig, resolveOptions, saveConfig } from "./config.js";
@@ -19,22 +20,33 @@ program
   .option("--print", "Print summary to terminal only, do not open browser")
   .action(async (sessionId: string | undefined, opts: { template: string; print: boolean }) => {
     const resolvedOptions = resolveOptions(loadConfig(), { templateId: opts.template });
-    const sid = sessionId ?? findLatestSession();
-    if (!sid) {
-      console.error("Error: no session found. Pass a session ID or run from a Claude Code project directory.");
-      process.exit(1);
+    let sid = sessionId ?? findLatestSession();
+    let usage: ReturnType<typeof readSession> = null;
+    let agent: string = resolvedOptions.agent;
+
+    if (sid) {
+      usage = readSession(sid);
     }
 
-    const usage = readSession(sid);
-    if (!usage) {
-      console.error(`Error: session file not found for ID ${sid}`);
+    // Fallback to CodeBuddy if no Claude session found
+    if (!usage && !sessionId) {
+      sid = findLatestCodeBuddySession();
+      if (sid) {
+        usage = readCodeBuddySession(sid);
+        agent = "codebuddy";
+      }
+    }
+
+    if (!sid || !usage) {
+      console.error("Error: no session found. Pass a session ID or run from a Claude Code / CodeBuddy project directory.");
       process.exit(1);
     }
 
     const modelCosts = computeCostByModel(usage.models);
     const totalCost = modelCosts.reduce((sum, mc) => sum + mc.cost, 0);
 
-    console.log(`\n🧾 Tickel — ${usage.projectName} (${usage.date})`);
+    const titlePrefix = agent === "codebuddy" ? "🧾 Tickel (CodeBuddy)" : "🧾 Tickel";
+    console.log(`\n${titlePrefix} — ${usage.projectName} (${usage.date})`);
 
     if (usage.models.length > 1) {
       // Multi-model breakdown
@@ -65,7 +77,7 @@ program
         cost: totalCost,
         templateId: resolvedOptions.templateId,
         webUrl: resolvedOptions.webUrl,
-        agent: resolvedOptions.agent,
+        agent,
       });
       console.log(`\n   Opening receipt: ${url}\n`);
       await open(url);
@@ -79,7 +91,10 @@ program
   .option("--print", "Print summary only")
   .action(async (opts: { template?: string; print: boolean }) => {
     const resolvedOptions = resolveOptions(loadConfig(), { templateId: opts.template });
-    const sessions = readTodaySessions();
+    const claudeSessions = readTodaySessions();
+    const codeBuddySessions = readTodayCodeBuddySessions();
+    const sessions = [...claudeSessions, ...codeBuddySessions];
+    
     if (sessions.length === 0) {
       console.log("\nNo sessions found for today.");
       return;

@@ -106,7 +106,16 @@ export function ReceiptEditor({ data, onChange }: Props) {
                 <div className="grid gap-2.5">
                   <div className="grid grid-cols-2 gap-2.5">
                     <Field label="Agent">
-                      <input value={model.agent ?? ""} onChange={(e) => updateModel(index, "agent", e.target.value)} className={inputClass} />
+                      <select
+                        value={model.agent ?? ""}
+                        onChange={(e) => updateModel(index, "agent", e.target.value)}
+                        className={inputClass}
+                      >
+                        <option value="">claude-code</option>
+                        <option value="codebuddy">CodeBuddy</option>
+                        <option value="cursor">Cursor</option>
+                        <option value="github-copilot">GitHub Copilot</option>
+                      </select>
                     </Field>
                     <Field label="Model">
                       <input value={model.model} onChange={(e) => updateModel(index, "model", e.target.value)} className={inputClass} />

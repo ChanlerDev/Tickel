@@ -8,13 +8,7 @@
 - [ ] 模板切换动画 — 切换模板时 receipt 平滑过渡
 - [ ] 预览舞台底色区分 — 左侧预览区使用微弱纹理/底色让 receipt 更聚焦
 - [ ] 编辑状态持久化 — 编辑后同步回 URL search params（replaceState），刷新不丢失
-- [ ] CodeBuddy 支持 — 兼容 CodeBuddy 的会话数据读取和用量统计
-  - [ ] 调研 CodeBuddy 会话数据格式（`~/.codebuddy/` 目录结构、JSONL 字段命名）
-  - [ ] 添加 CodeBuddy 数据源检测逻辑
-  - [ ] 实现 CodeBuddy 会话文件读取
-  - [ ] 实现 CodeBuddy token 解析（input/output/cache tokens）
-  - [ ] 添加 CodeBuddy 模型价格表（腾讯混元、DeepSeek 等）
-  - [ ] Web 收据支持 CodeBuddy agent 标识展示
+- [x] CodeBuddy 支持 — 兼容 CodeBuddy 的会话数据读取和用量统计
 - [ ] README — GitHub repo 添加使用说明
 
 ## Done
