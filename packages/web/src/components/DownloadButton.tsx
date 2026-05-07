@@ -42,9 +42,18 @@ export function DownloadButton({ filename }: Props) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="rounded-md bg-zinc-950 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+      className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-4 py-2 text-[13px] font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-50"
     >
+      <DownloadIcon />
       {loading ? "Generating..." : "Download PNG"}
     </button>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-current">
+      <path d="M7 1.75v7.5M7 9.25l-2.5-2.5M7 9.25l2.5-2.5M2.5 11.75h9" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
   );
 }

@@ -19,15 +19,24 @@ export function ReceiptPage() {
   const template = getReceiptTemplate(data.templateId);
 
   return (
-    <div className="min-h-screen bg-[#eef0f3] text-zinc-950">
-      <div className="mx-auto grid min-h-screen w-full min-w-0 max-w-6xl gap-4 px-3 py-3 lg:grid-cols-[minmax(480px,1fr)_380px] lg:gap-5 lg:px-5 lg:py-5">
-        <main className="flex min-h-[62vh] min-w-0 flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-zinc-200 bg-[#f8f8f6] p-4 shadow-sm lg:min-h-[calc(100vh-2.5rem)] lg:p-8">
-          <div className="flex w-full min-w-0 justify-center">
+    <div className="min-h-screen">
+      {/* Top bar */}
+      <header className="sticky top-0 z-10 flex h-12 items-center border-b border-zinc-200 bg-white/80 px-4 backdrop-blur-sm lg:px-6">
+        <span className="text-sm font-semibold tracking-tight text-zinc-900">Tickel</span>
+      </header>
+
+      {/* Main grid */}
+      <div className="mx-auto grid w-full max-w-[1320px] gap-0 lg:grid-cols-[1fr_340px] lg:min-h-[calc(100vh-48px)]">
+        {/* Preview stage */}
+        <main className="flex flex-col items-center justify-center gap-5 px-6 py-10 lg:px-12 lg:py-16">
+          <div className="flex w-full justify-center">
             <ReceiptFrame data={data} template={template} />
           </div>
           <DownloadButton filename={`tickel-${safeFilenamePart(data.date)}.png`} />
         </main>
-        <aside className="min-w-0 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:overflow-y-auto">
+
+        {/* Control panel */}
+        <aside className="border-t border-zinc-200 bg-white lg:border-l lg:border-t-0 lg:overflow-y-auto lg:h-[calc(100vh-48px)] lg:sticky lg:top-12">
           <ReceiptEditor data={data} onChange={setData} />
         </aside>
       </div>

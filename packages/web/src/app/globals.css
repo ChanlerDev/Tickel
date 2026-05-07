@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
 .receipt-frame {
   container-type: inline-size;
   isolation: isolate;
