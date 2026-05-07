@@ -36,9 +36,6 @@ export const MODEL_ID_OVERRIDES: Record<string, string> = {
   "kimi-k2.6-ioa": "moonshotai/kimi-k2.6",
   "kimi-k2.5-ioa": "moonshotai/kimi-k2.5",
 
-  // Tencent (hy3-preview-ioa not in standard price table)
-  "hy3-preview-ioa": "tencent/hy3-preview-ioa",
-
   // DeepSeek (custom VolcEngine variant → standard deepseek-v3)
   "deepseek-v3-2-volc-ioa": "deepseek/deepseek-v3",
 };
