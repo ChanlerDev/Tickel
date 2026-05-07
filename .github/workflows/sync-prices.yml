@@ -2,7 +2,7 @@ name: Sync model prices
 
 on:
   schedule:
-    - cron: "0 3 * * *" # 11:00 Asia/Shanghai
+    - cron: "23 3 * * *" # 11:23 Asia/Shanghai
   workflow_dispatch:
 
 permissions:
