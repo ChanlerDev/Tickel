@@ -14,7 +14,8 @@
 4. 实现时保持改动聚焦，遵循现有结构和风格；根据风险补测试。
 5. 用户可见行为变化写入 `docs/CHANGELOG.md` 的 `## Unreleased` 区块；不要手动归入版本号，`pnpm agent:release` 会自动将 Unreleased 内容重命名为新版本号。产品语义或契约变化更新 `docs/SPEC.md`；安装和使用变化更新 README。
 6. 如果实现了 roadmap 项，完成后从 `## Planned` 移到 `## Done`，保留历史。
-7. 运行 `pnpm agent:check` 后再交付。
+7. 如果实现过程中发现自然延伸的功能改进点，将其追加到 `docs/ROADMAP.md` 的 `## Planned`。
+8. 运行 `pnpm agent:check` 后再交付。
 
 ## Agent 脚本
 
