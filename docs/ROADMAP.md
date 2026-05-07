@@ -2,6 +2,7 @@
 
 ## Planned
 
+- [ ] PNG 导出白边修复 — 下载图片中文字周围出现白色矩形伪影，排查 dom-to-image 渲染问题
 - [ ] Agent 分层展示 — 以 agent 为第一层级、model 为第二层级组织收据明细，支持多 agent 场景
 - [ ] 前端自动计算费用 — Web 编辑器内置价格表，编辑 token 数后自动重算 cost
 - [ ] 模板切换动画 — 切换模板时 receipt 平滑过渡
