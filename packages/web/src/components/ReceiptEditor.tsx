@@ -50,68 +50,69 @@ export function ReceiptEditor({ data, onChange }: Props) {
   }
 
   return (
-    <form className="w-full rounded-lg border border-zinc-200 bg-white shadow-sm">
-      <div className="border-b border-zinc-200 px-4 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-semibold text-zinc-950">Details</h2>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-500">Edit the data. Template style stays isolated.</p>
-          </div>
-          <button
-            type="button"
-            onClick={addModel}
-            className="shrink-0 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
-          >
-            Add
-          </button>
-        </div>
+    <form className="flex h-full flex-col">
+      {/* Panel header */}
+      <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-3.5">
+        <h2 className="text-[13px] font-semibold text-zinc-900">Parameters</h2>
+        <button
+          type="button"
+          onClick={addModel}
+          className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-900"
+        >
+          + Model
+        </button>
       </div>
 
-      <div className="grid gap-4 px-4 py-4">
-        <div>
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Receipt</div>
-          <div className="grid gap-3">
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="grid gap-5">
+          {/* Receipt meta */}
+          <section className="grid gap-3">
+            <SectionLabel>Receipt</SectionLabel>
+            <Field label="Template">
+              <select value={data.templateId} onChange={(e) => update({ templateId: e.target.value })} className={inputClass}>
+                {receiptTemplates.map((t) => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </select>
+            </Field>
             <Field label="Project">
               <input value={data.title} onChange={(e) => update({ title: e.target.value })} className={inputClass} />
             </Field>
             <Field label="Date">
               <input type="date" value={data.date} onChange={(e) => update({ date: e.target.value })} className={inputClass} />
             </Field>
-            <Field label="Template">
-              <select value={data.templateId} onChange={(e) => update({ templateId: e.target.value })} className={inputClass}>
-                {receiptTemplates.map((template) => (
-                  <option key={template.id} value={template.id}>{template.label}</option>
-                ))}
-              </select>
-            </Field>
-          </div>
-        </div>
+          </section>
 
-        <div>
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Usage</div>
-          <div className="space-y-3">
+          {/* Model entries */}
+          <section className="grid gap-3">
+            <SectionLabel>Usage</SectionLabel>
             {models.map((model, index) => (
-              <section key={`${model.agent}-${model.model}-${index}`} className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div className="text-xs font-semibold text-zinc-800">Model {index + 1}</div>
+              <div key={`${model.agent}-${model.model}-${index}`} className="rounded-md border border-zinc-150 bg-zinc-50/60 p-3">
+                <div className="mb-2.5 flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-zinc-700">
+                    {model.model || `Model ${index + 1}`}
+                  </span>
                   <button
                     type="button"
                     onClick={() => removeModel(index)}
                     disabled={models.length === 1}
-                    className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="text-[11px] text-zinc-400 transition-colors hover:text-red-500 disabled:pointer-events-none disabled:opacity-30"
                   >
                     Remove
                   </button>
                 </div>
 
-                <div className="grid gap-3">
-                  <Field label="Agent">
-                    <input value={model.agent ?? ""} onChange={(e) => updateModel(index, "agent", e.target.value)} className={inputClass} />
-                  </Field>
-                  <Field label="Model">
-                    <input value={model.model} onChange={(e) => updateModel(index, "model", e.target.value)} className={inputClass} />
-                  </Field>
-                  <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-2.5">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <Field label="Agent">
+                      <input value={model.agent ?? ""} onChange={(e) => updateModel(index, "agent", e.target.value)} className={inputClass} />
+                    </Field>
+                    <Field label="Model">
+                      <input value={model.model} onChange={(e) => updateModel(index, "model", e.target.value)} className={inputClass} />
+                    </Field>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2.5">
                     <Field label="Input">
                       <input inputMode="numeric" value={model.in} onChange={(e) => updateModel(index, "in", e.target.value)} className={inputClass} />
                     </Field>
@@ -125,34 +126,37 @@ export function ReceiptEditor({ data, onChange }: Props) {
                       <input inputMode="numeric" value={model.cr} onChange={(e) => updateModel(index, "cr", e.target.value)} className={inputClass} />
                     </Field>
                   </div>
-                  <Field label="Cost">
+                  <Field label="Cost ($)">
                     <input inputMode="decimal" value={model.cost} onChange={(e) => updateModel(index, "cost", e.target.value)} className={inputClass} />
                   </Field>
                 </div>
-              </section>
+              </div>
             ))}
-          </div>
+          </section>
         </div>
+      </div>
 
-        <div className="rounded-lg border border-zinc-200 bg-zinc-950 p-3 text-white">
-          <div className="text-[11px] uppercase tracking-[0.14em] text-zinc-400">Total</div>
-          <div className="mt-1 font-mono text-2xl font-bold">${data.cost.toFixed(4)}</div>
-          <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-zinc-300">
-            <span>Input {data.inputTokens.toLocaleString()}</span>
-            <span>Output {data.outputTokens.toLocaleString()}</span>
-            <span>Cache W {data.cacheWriteTokens.toLocaleString()}</span>
-            <span>Cache R {data.cacheReadTokens.toLocaleString()}</span>
-          </div>
+      {/* Footer total */}
+      <div className="border-t border-zinc-100 px-5 py-3.5">
+        <div className="flex items-baseline justify-between">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-400">Total</span>
+          <span className="font-mono text-lg font-bold text-zinc-900">${data.cost.toFixed(4)}</span>
         </div>
       </div>
     </form>
   );
 }
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-400">{children}</div>
+  );
+}
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-1 text-xs font-medium text-zinc-600">
-      {label}
+    <label className="grid gap-1">
+      <span className="text-[11px] font-medium text-zinc-500">{label}</span>
       {children}
     </label>
   );
@@ -181,4 +185,4 @@ function sum(models: NonNullable<ReceiptData["models"]>, key: "in" | "out" | "cw
   return models.reduce((total, model) => total + model[key], 0);
 }
 
-const inputClass = "h-9 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-950 outline-none transition-colors focus:border-zinc-700";
+const inputClass = "h-8 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 outline-none transition-colors placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400/20";
