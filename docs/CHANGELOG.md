@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **feat**: Web 收据页升级为预览工作台布局，左侧聚焦收据预览，右侧提供模板与参数控制，并支持实时导出 PNG
 - **feat**: 官方模型价格表同步 — 基于 models.dev 官方 provider allowlist 生成价格表快照，并支持定时同步 PR 与带 `release:patch` 标签的合并后自动发版
 
 ## 0.2.5

@@ -16,17 +16,17 @@ export function DownloadButton({ filename }: Props) {
       const node = document.getElementById("receipt");
       if (!node) throw new Error("receipt element not found");
 
-      const scale = 3; // retina quality
+      const scale = 3;
       const blob = await domtoimage.toBlob(node, {
         width: node.offsetWidth * scale,
         height: node.offsetHeight * scale,
         style: { transform: `scale(${scale})`, transformOrigin: "top left" },
       });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download failed:", err);
@@ -40,9 +40,9 @@ export function DownloadButton({ filename }: Props) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="mt-4 px-6 py-2 bg-black text-white text-sm rounded-full hover:bg-gray-800 disabled:opacity-50 transition-colors"
+      className="w-full rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-950/30 transition-all hover:-translate-y-0.5 hover:bg-slate-800 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {loading ? "Generating..." : "Download PNG"}
+      {loading ? "Generating PNG..." : "Download PNG"}
     </button>
   );
 }
