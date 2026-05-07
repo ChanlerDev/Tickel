@@ -88,7 +88,7 @@ export function ReceiptEditor({ data, onChange }: Props) {
           <section className="grid gap-3">
             <SectionLabel>Usage</SectionLabel>
             {models.map((model, index) => (
-              <div key={`${model.agent}-${model.model}-${index}`} className="rounded-md border border-zinc-150 bg-zinc-50/60 p-3">
+              <div key={index} className="rounded-md border border-zinc-150 bg-zinc-50/60 p-3">
                 <div className="mb-2.5 flex items-center justify-between">
                   <span className="text-[11px] font-semibold text-zinc-700">
                     {model.model || `Model ${index + 1}`}

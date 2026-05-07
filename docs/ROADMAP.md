@@ -2,8 +2,12 @@
 
 ## Planned
 
+- [ ] Agent 分层展示 — 以 agent 为第一层级、model 为第二层级组织收据明细，支持多 agent 场景
+- [ ] 前端自动计算费用 — Web 编辑器内置价格表，编辑 token 数后自动重算 cost
+- [ ] 模板切换动画 — 切换模板时 receipt 平滑过渡
+- [ ] 预览舞台底色区分 — 左侧预览区使用微弱纹理/底色让 receipt 更聚焦
+- [ ] 编辑状态持久化 — 编辑后同步回 URL search params（replaceState），刷新不丢失
 - [ ] CodeBody 支持 — 兼容 CodeBody 的会话数据读取和用量统计
-- [ ] README — GitHub repo 添加使用说明
 - [ ] README — GitHub repo 添加使用说明
 
 ## Done
