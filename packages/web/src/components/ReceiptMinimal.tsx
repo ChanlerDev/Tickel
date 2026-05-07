@@ -4,6 +4,29 @@ interface Props {
   data: ReceiptData;
 }
 
+function AgentBadge({ agent }: { agent: string }) {
+  const isCodeBuddy = agent === "codebuddy";
+
+  if (isCodeBuddy) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-semibold text-sky-600">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" fillOpacity="0.4"/>
+          <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        CodeBuddy
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-[10px] text-gray-400">
+      {agent}
+    </span>
+  );
+}
+
 export function ReceiptMinimal({ data }: Props) {
   const hasBreakdown = data.models && data.models.length > 1;
 
@@ -30,7 +53,10 @@ export function ReceiptMinimal({ data }: Props) {
           {/* Multi-model: each model is a card with full detail */}
           {data.models!.map((m) => (
             <div key={m.model} className="mb-4 rounded-lg bg-gray-50 p-3">
-              <div className="mb-2 break-words text-[11px] font-semibold">{m.model.replace(/^claude-/, "")}</div>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="break-words text-[11px] font-semibold">{m.model.replace(/^claude-/, "")}</span>
+                {m.agent && <AgentBadge agent={m.agent} />}
+              </div>
               <div className="grid grid-cols-2 gap-1 text-[10px]">
                 <div className="text-gray-400">Input</div>
                 <div className="text-right font-mono">{formatTokens(m.in)}</div>

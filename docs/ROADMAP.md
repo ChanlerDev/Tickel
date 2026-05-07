@@ -8,17 +8,11 @@
 - [ ] 模板切换动画 — 切换模板时 receipt 平滑过渡
 - [ ] 预览舞台底色区分 — 左侧预览区使用微弱纹理/底色让 receipt 更聚焦
 - [ ] 编辑状态持久化 — 编辑后同步回 URL search params（replaceState），刷新不丢失
-- [ ] CodeBuddy 支持 — 兼容 CodeBuddy 的会话数据读取和用量统计
-  - [ ] 调研 CodeBuddy 会话数据格式（`~/.codebuddy/` 目录结构、JSONL 字段命名）
-  - [ ] 添加 CodeBuddy 数据源检测逻辑
-  - [ ] 实现 CodeBuddy 会话文件读取
-  - [ ] 实现 CodeBuddy token 解析（input/output/cache tokens）
-  - [ ] 添加 CodeBuddy 模型价格表（腾讯混元、DeepSeek 等）
-  - [ ] Web 收据支持 CodeBuddy agent 标识展示
 - [ ] README — GitHub repo 添加使用说明
 
 ## Done
 
+- [x] CodeBuddy 支持 — 兼容 CodeBuddy 的会话数据读取和用量统计
 - [x] 收据页面改版 — 双栏工作台布局，左侧预览主舞台 + 右侧参数控制面板，提升信息架构和视觉完成度
 - [x] 收据参数协议 v2 — 用可扩展 payload 表达 coding agent、模型明细、费用和展示偏好，并保留旧 URL 参数兼容
 - [x] Web 收据编辑器 — 前端支持手动调整项目、日期、agent、模型 token/费用和模板等参数，修正本地统计误差或临时改样式

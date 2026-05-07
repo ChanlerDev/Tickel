@@ -45,7 +45,9 @@ export function ReceiptLedger({ data }: Props) {
             <div key={`${item.agent}-${item.model}-${index}`} className="grid gap-2 text-sm sm:grid-cols-[1fr_auto] sm:gap-3">
               <div className="min-w-0">
                 <div className="break-words font-semibold leading-snug">{item.model}</div>
-                <div className="mt-0.5 text-[11px] uppercase tracking-[0.16em] text-[#7d6f59]">{item.agent ?? "agent"}</div>
+                <div className="mt-0.5 flex items-center gap-1.5">
+                  <AgentBadge agent={item.agent} />
+                </div>
               </div>
               <div className="font-mono text-sm font-bold sm:shrink-0 sm:text-right">${item.cost.toFixed(4)}</div>
             </div>
@@ -70,5 +72,29 @@ function Metric({ label, value }: { label: string; value: string }) {
       <div className="text-[10px] uppercase tracking-[0.18em] text-[#7d6f59]">{label}</div>
       <div className="mt-1 font-mono text-lg font-bold">{value}</div>
     </div>
+  );
+}
+
+function AgentBadge({ agent }: { agent?: string }) {
+  const isCodeBuddy = agent === "codebuddy";
+  const displayText = agent ?? "agent";
+
+  if (isCodeBuddy) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-[#e8f4f8] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#0066cc]">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" fillOpacity="0.4"/>
+          <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        CodeBuddy
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-[11px] uppercase tracking-[0.16em] text-[#7d6f59]">
+      {displayText}
+    </span>
   );
 }

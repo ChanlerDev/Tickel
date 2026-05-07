@@ -8,6 +8,25 @@ function shortModel(model: string): string {
   return model.replace(/^claude-/, "");
 }
 
+function AgentLabel({ agent }: { agent: string }) {
+  const isCodeBuddy = agent === "codebuddy";
+
+  if (isCodeBuddy) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sky-600">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" fillOpacity="0.4"/>
+          <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        CodeBuddy
+      </span>
+    );
+  }
+
+  return <span className="text-[10px] text-gray-600">{agent}</span>;
+}
+
 export function ReceiptDefault({ data }: Props) {
   const hasBreakdown = data.models && data.models.length > 1;
 
@@ -35,10 +54,18 @@ export function ReceiptDefault({ data }: Props) {
           <span>{data.date}</span>
         </div>
         {!hasBreakdown && (
-          <div className="flex justify-between">
-            <span className="text-gray-500">MODEL</span>
-            <span className="text-[10px]">{data.model}</span>
-          </div>
+          <>
+            <div className="flex justify-between">
+              <span className="text-gray-500">MODEL</span>
+              <span className="text-[10px]">{data.model}</span>
+            </div>
+            {data.models && data.models[0]?.agent && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">AGENT</span>
+                <AgentLabel agent={data.models[0].agent} />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -49,7 +76,10 @@ export function ReceiptDefault({ data }: Props) {
           {/* Multi-model: each model as a "dish" with full detail */}
           {data.models!.map((m, i) => (
           <div key={m.model}>
-              <div className="mb-1 break-words text-[11px] font-bold">{shortModel(m.model)}</div>
+              <div className="mb-1 flex items-center justify-between">
+                <span className="break-words text-[11px] font-bold">{shortModel(m.model)}</span>
+                {m.agent && <AgentLabel agent={m.agent} />}
+              </div>
               <div className="flex justify-between py-0.5 pl-2">
                 <span className="text-gray-500">INPUT</span>
                 <span>{formatTokens(m.in)}</span>
