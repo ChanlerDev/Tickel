@@ -9,6 +9,10 @@
 - [ ] 预览舞台底色区分 — 左侧预览区使用微弱纹理/底色让 receipt 更聚焦
 - [ ] 编辑状态持久化 — 编辑后同步回 URL search params（replaceState），刷新不丢失
 - [ ] README — GitHub repo 添加使用说明
+- [ ] CodeBuddy 完善 — 修复已知问题
+  - [ ] `tickel` 默认取最近会话 — 同时检查 Claude 和 CodeBuddy，取 mtime 最新的（而非优先 Claude）
+  - [ ] `tickel today` 区分 agent — 多 agent 混合场景下，收据需标注涉及的 coding agents
+  - [ ] `tickel install` 支持 CodeBuddy — 安装 CodeBuddy 的 slash command
 
 ## Done
 
