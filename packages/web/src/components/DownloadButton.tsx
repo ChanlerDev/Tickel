@@ -22,6 +22,7 @@ export function DownloadButton({ filename }: Props) {
         height: node.offsetHeight,
         pixelRatio: 3,
         cacheBust: true,
+        bgcolor: "#ffffff",
       });
       node.classList.remove("is-exporting");
 
