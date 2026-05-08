@@ -2,7 +2,6 @@
 
 ## Planned
 
-- [ ] PNG 导出白边修复 — 下载图片中文字周围出现白色矩形伪影，排查 dom-to-image 渲染问题
 - [ ] Agent 分层展示 — 以 agent 为第一层级、model 为第二层级组织收据明细，支持多 agent 场景
 - [ ] 前端自动计算费用 — Web 编辑器内置价格表，编辑 token 数后自动重算 cost
 - [ ] 模板切换动画 — 切换模板时 receipt 平滑过渡
@@ -16,6 +15,7 @@
 
 ## Done
 
+- [x] PNG white border fix — add bgcolor option to dom-to-image-more export
 - [x] CodeBuddy 支持 — 兼容 CodeBuddy 的会话数据读取和用量统计
 - [x] 收据页面改版 — 双栏工作台布局，左侧预览主舞台 + 右侧参数控制面板，提升信息架构和视觉完成度
 - [x] 收据参数协议 v2 — 用可扩展 payload 表达 coding agent、模型明细、费用和展示偏好，并保留旧 URL 参数兼容
