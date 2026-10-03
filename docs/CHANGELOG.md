@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **chore**: 同步官方模型价格表
+
 - **feat**: CodeBuddy 支持 — 读取 `~/.codebuddy/projects/` 会话数据，支持腾讯混元、DeepSeek 模型价格和费用计算，CLI 和 Web 收据展示 CodeBuddy agent 标识
 - **feat**: Web 页面改版为双栏工作台布局 — 左侧预览主舞台聚焦收据，右侧参数面板承接编辑；顶部增加轻量导航栏；移动端自然降级为上下堆叠
 - **fix**: PNG white border artifacts — add `bgcolor: "#ffffff"` option to dom-to-image-more export
